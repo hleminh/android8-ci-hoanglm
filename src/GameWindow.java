@@ -11,6 +11,7 @@ import java.io.IOException;
         Image backgroundImage;
         Image planeImage;
         private int planeX = (400 - 35) / 2;
+        private int planeY = 600 - 25;
 
         public GameWindow() {
             setVisible(true);
@@ -47,8 +48,22 @@ import java.io.IOException;
                 public void keyPressed(KeyEvent e) {
                     super.keyPressed(e);
                     if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                        // TODO: move plane to right
                         planeX += 10;
+                        repaint();
+                        System.out.println("keyPressed");
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                        planeX -= 10;
+                        repaint();
+                        System.out.println("keyPressed");
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_UP) {
+                        planeY -= 10;
+                        repaint();
+                        System.out.println("keyPressed");
+                    }
+                    if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                        planeY += 10;
                         repaint();
                         System.out.println("keyPressed");
                     }
@@ -74,7 +89,7 @@ import java.io.IOException;
         @Override
         public void update(Graphics g) {
             g.drawImage(backgroundImage, 0, 0, 400, 600, null);
-            g.drawImage(planeImage, planeX, 600 - 25, 35, 25, null);
+            g.drawImage(planeImage, planeX, planeY, 35, 25, null);
         }
     }
 
