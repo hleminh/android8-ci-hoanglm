@@ -10,12 +10,14 @@ import java.io.IOException;
     public class GameWindow extends Frame {
         Image backgroundImage;
         Image planeImage;
-        private int planeX = (400 - 35) / 2;
-        private int planeY = 600 - 25;
+        private int windowX = 400;
+        private int windowY = 600;
+        private int planeX = (400 - 70) / 2;
+        private int planeY = 600 - 62;
 
         public GameWindow() {
             setVisible(true);
-            setSize(400, 600);
+            setSize(windowX, windowY);
 
             addWindowListener(new WindowAdapter() {
                 @Override
@@ -47,28 +49,41 @@ import java.io.IOException;
                 @Override
                 public void keyPressed(KeyEvent e) {
                     super.keyPressed(e);
-                    if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                        planeX += 10;
-                        repaint();
-                        System.out.println("keyPressed");
-                    }
-                    if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                        planeX -= 10;
-                        repaint();
-                        System.out.println("keyPressed");
-                    }
-                    if (e.getKeyCode() == KeyEvent.VK_UP) {
-                        planeY -= 10;
-                        repaint();
-                        System.out.println("keyPressed");
-                    }
-                    if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                        planeY += 10;
-                        repaint();
-                        System.out.println("keyPressed");
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_RIGHT: {
+                            if (planeX + 10 <= windowX - 70)
+                                planeX += 10;
+                            repaint();
+                            System.out.println("keyPressed: Right");
+                            //System.out.println("PlaneX:" + planeX);
+                        }
+                        break;
+                        case KeyEvent.VK_LEFT: {
+                            if (planeX - 10 >= 0)
+                                planeX -= 10;
+                            repaint();
+                            System.out.println("keyPressed: Left");
+                            //System.out.println("PlaneX:" + planeX);
+                        }
+                        break;
+                        case KeyEvent.VK_UP: {
+                            if (planeY - 10 >= 28)
+                                planeY -= 10;
+                            repaint();
+                            System.out.println("keyPressed: Up");
+                            //System.out.println("PlaneY:" + planeY);
+                        }
+                        break;
+                        case KeyEvent.VK_DOWN: {
+                            if (planeY + 10 <= windowY - 62)
+                                planeY += 10;
+                            repaint();
+                            System.out.println("keyPressed: Down");
+                            //System.out.println("PlaneY:" + planeY);
+                        }
+                        break;
                     }
                 }
-
                 @Override
                 public void keyReleased(KeyEvent e) {
                     super.keyReleased(e);
@@ -89,7 +104,7 @@ import java.io.IOException;
         @Override
         public void update(Graphics g) {
             g.drawImage(backgroundImage, 0, 0, 400, 600, null);
-            g.drawImage(planeImage, planeX, planeY, 35, 25, null);
+            g.drawImage(planeImage, planeX, planeY, 70, 51, null);
         }
     }
 
