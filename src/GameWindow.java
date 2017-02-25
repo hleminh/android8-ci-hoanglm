@@ -79,7 +79,7 @@ public class GameWindow extends Frame {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
-                System.out.println("windowClosing");
+                //System.out.println("windowClosing");
                 System.exit(0);
             }
 
@@ -703,7 +703,7 @@ public class GameWindow extends Frame {
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                             }
-                            return;
+                            System.exit(0);
                         }
                     }
 
