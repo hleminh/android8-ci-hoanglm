@@ -74,7 +74,7 @@ public class GameWindow extends Frame {
     public GameWindow() {
         setVisible(true);
         setSize(windowX, windowY);
-        System.out.println("RULES:\n - Shoot down enemy's airplanes and bombs.\n - Avoid enemy's bullets and bombs.\n - Collect power-ups to be invunerable for a short period of time.\n - Each diagonally moving airplane rewards 1pt since they're easier to shoot.\n - Each straight moving airplane rewards 2pt since they're harder to shoot.\n - Each bomb rewards 1pt.\n Good luck!\nCONTROLS:\n - ARROW KEYS to move.\n - SPACE to shoot.\n - ENTER to pause (experimental).");
+        System.out.println("RULES:\n - Shoot down enemy's airplanes and bombs.\n - Avoid enemy's bullets and bombs.\n - Collect power-ups to be invunerable for a short period of time.\n - Each diagonally moving airplane rewards 1pt since they're easier to shoot.\n - Each straight moving airplane rewards 2pt since they're harder to shoot.\n - Each bomb rewards 1pt.\n Good luck!\nCONTROLS:\n - ARROW KEYS to move.\n - SPACE to shoot.\n - ENTER to pause (experimental).\nGAME LOGS:");
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -144,9 +144,14 @@ public class GameWindow extends Frame {
                     }
                     break;
                     case KeyEvent.VK_ENTER: {
-                        System.out.println("Paused");
-                        if (active == true) active = false;
-                        else active = true;
+                        if (active == true){
+                            System.out.println("Paused");
+                            active = false;
+                        }
+                        else{
+                            active = true;
+                            System.out.println("Unpaused");
+                        }
                         //System.out.println(active);
                     }break;
                     case KeyEvent.VK_SPACE: {
