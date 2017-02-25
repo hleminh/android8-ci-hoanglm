@@ -1,6 +1,6 @@
 import java.awt.*;
 
-public class PlayerBullet {
+public class PowerUp {
     public Image image;
     public int x;
     public int y;
@@ -8,7 +8,7 @@ public class PlayerBullet {
     public int height;
     public int speed;
     public boolean active = true;
-    public PlayerBullet(int a, int b, int c, int d, int f, Image g ){
+    public PowerUp(int a, int b, int c, int d, int f, Image g ){
         x = a;
         y = b;
         width = c;
