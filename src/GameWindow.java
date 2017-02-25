@@ -432,6 +432,7 @@ public class GameWindow extends Frame {
                                         //System.out.println("Player x: " + playerPlane.x +" Player y: " + playerPlane.y);
                                         if (playerPlane.power == false)
                                             playerPlane.active = false;
+                                        temp2.active = false;
                                     }
                                 }
                             }
