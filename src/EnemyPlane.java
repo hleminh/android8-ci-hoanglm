@@ -7,11 +7,11 @@ public class EnemyPlane extends PlayerPlane{
         super(a,b,c,d,f,g);
     }
     void moveRightDown(){
-        y += speed - 2;
-        x += speed - 3;
+        setY(getY() - getSpeed());
+        setX(getX() + getSpeed() - 3);
     }
     void moveLeftDown(){
-        y += speed - 2;
-        x -= speed - 3;
+        setY(getY() - getSpeed());
+        setX(getX() - getSpeed() - 3);
     }
 }

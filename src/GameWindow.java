@@ -1,4 +1,11 @@
-import javax.imageio.ImageIO;
+import controllers.PlayerBulletController;
+import models.*;
+import views.*;
+import controllers.*;
+
+import utils.Utils;
+import views.PlayerBulletView;
+
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -20,11 +27,6 @@ public class GameWindow extends Frame {
     private static final int BACKGROUND_SPEED = 1;
     private int score = 0;
 
-    /*Image backgroundImage;
-    Image planeImage;
-    Image enemyImage;
-    Image bulletImage;*/
-
     private static final int windowX = 400;
     private static final int windowY = 600;
 
@@ -34,9 +36,6 @@ public class GameWindow extends Frame {
     private int planeX = (windowX - planeWidth) / 2;
     private int planeY = windowY - planeHeight - 5;
 
-    /*private int bulletX = (windowX - 13) /2;
-    private int bulletY = windowY - planeY - 33;
-    boolean bulletExist=false;*/
 
     private BufferedImage backBufferImage;
     private Graphics backGraphics;
@@ -51,30 +50,38 @@ public class GameWindow extends Frame {
 
     private int clockPowerUp = 0;
 
-    public boolean active = true;
+    private int clockBoss = 0;
+
+    private boolean bossActive = false;
+
+    private boolean active = true;
 
     private PlayerPlane playerPlane;
 
-    private Background background;
-    private Background backgroundBuffer;
-    private Background gameover;
-    private Background paused;
-    private Background wasted;
+    private BackgroundController background;
+    private BackgroundController backgroundBuffer;
+    private BackgroundController gameover;
+    private BackgroundController paused;
+    private BackgroundController wasted;
 
-    ArrayList<EnemyPlane> enemyPlanes = new ArrayList<EnemyPlane>();
+    private ArrayList<EnemyPlaneController> enemyPlaneControllers = new ArrayList<EnemyPlaneController>();
 
-    ArrayList<Island> isLands = new ArrayList<Island>();
+    private ArrayList<IslandController> isLands = new ArrayList<IslandController>();
 
-    ArrayList<Bomb> Bombs = new ArrayList<Bomb>();
+    private ArrayList<BombController> Bombs = new ArrayList<BombController>();
 
-    ArrayList<PowerUp> powerUps = new ArrayList<PowerUp>();
+    private ArrayList<PowerUpController> powerUps = new ArrayList<PowerUpController>();
 
-    Thread thread;
+    private ArrayList<EnemyBulletController> enemyBulletStray = new ArrayList<EnemyBulletController>();
+
+    private PlayerPlaneController playerPlaneController;
+
+    private Thread thread;
 
     public GameWindow() {
         setVisible(true);
         setSize(windowX, windowY);
-        System.out.println("RULES:\n - Shoot down enemy's airplanes and bombs.\n - Avoid enemy's bullets and bombs.\n - Collect power-ups to be invunerable for a short period of time.\n - Each diagonally moving airplane rewards 1pt since they're easier to shoot.\n - Each straight moving airplane rewards 2pt since they're harder to shoot.\n - Each bomb rewards 1pt.\n Good luck!\nCONTROLS:\n - ARROW KEYS to move.\n - SPACE to shoot.\n - ENTER to pause (experimental).\nGAME LOGS:");
+        System.out.println("RULES:\n - Shoot down enemy's airplanes and bomb.\n - Avoid enemy's bullets and bomb.\n - Collect power-ups to be invunerable for a short period of time and shoots stronger bullets.\n - Each diagonally moving airplane rewards 1pt since they're easier to shoot.\n - Each straightly moving airplane rewards 2pt since they're harder to shoot.\n - Each bomb rewards 1pt.\n - Each boss rewards 10pt.\n Good luck!\nCONTROLS:\n - ARROW KEYS to move.\n - SPACE to shoot.\n - ENTER to pause.\nGAME LOGS:");
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -91,18 +98,19 @@ public class GameWindow extends Frame {
         });
 
         // 1: Load image
-        //backgroundImage = loadImageFromRes("background.png");
-        background = new Background(0,0,windowX,windowY,BACKGROUND_SPEED,loadImageFromRes("background.png"));
-        backgroundBuffer = new Background(0,-600,windowX,windowY,BACKGROUND_SPEED,loadImageFromRes("background.png"));
-        gameover = new Background(0,0,windowX,windowY,BACKGROUND_SPEED,loadImageFromRes("gameover.png"));
-        paused = new Background(0,0,windowX,windowY,BACKGROUND_SPEED,loadImageFromRes("paused.png"));
-        wasted = new Background(0,0,windowX,windowY,BACKGROUND_SPEED,loadImageFromRes("wasted.png"));
+        background = new BackgroundController(0,0,windowX,windowY,BACKGROUND_SPEED, Utils.loadImageFromRes("background.png"));
+        backgroundBuffer = new BackgroundController(0,-600,windowX,windowY,BACKGROUND_SPEED,Utils.loadImageFromRes("background.png"));
+        gameover = new BackgroundController(0,0,windowX,windowY,BACKGROUND_SPEED,Utils.loadImageFromRes("gameover.png"));
+        paused = new BackgroundController(0,0,windowX,windowY,BACKGROUND_SPEED,Utils.loadImageFromRes("paused.png"));
+        wasted = new BackgroundController(0,0,windowX,windowY,BACKGROUND_SPEED,Utils.loadImageFromRes("wasted.png"));
 
         // 2: Draw image
         repaint();
 
         // 3: Initialize player plane
-        playerPlane = new PlayerPlane(planeX,planeY,planeWidth,planeHeight,SPEED,loadImageFromRes("plane3.png"));
+        PlayerPlaneModel model = new PlayerPlaneModel(planeX,planeY,planeWidth,planeHeight,SPEED);
+        PlayerPlaneView view = new PlayerPlaneView(Utils.loadImageFromRes("plane3.png"));
+        playerPlaneController = new PlayerPlaneController(model,view);
 
         // 4: Initialize moving function
         addKeyListener(new KeyAdapter() {
@@ -116,31 +124,23 @@ public class GameWindow extends Frame {
                 super.keyPressed(e);
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_RIGHT: {
-                        if (playerPlane.x + playerPlane.speed <= background.width - playerPlane.width - 3 && active == true)
-                            playerPlane.moveRight();
-                        //System.out.println("keyPressed: Right");
-                        //System.out.println("PlaneX:" + planeX);
+                        if (playerPlaneController.getModel().getX() + playerPlaneController.getModel().getSpeed() <= background.getModel().getWidth() - playerPlaneController.getModel().getWidth() - 3 && active == true)
+                            playerPlaneController.getModel().moveRight();
                     }
                     break;
                     case KeyEvent.VK_LEFT: {
-                        if (playerPlane.x - playerPlane.speed >= 3 && active == true)
-                            playerPlane.moveLeft();
-                        //System.out.println("keyPressed: Left");
-                        //System.out.println("PlaneX:" + planeX);
+                        if (playerPlaneController.getModel().getX() - playerPlaneController.getModel().getSpeed() >= 3 && active == true)
+                            playerPlaneController.getModel().moveLeft();
                     }
                     break;
                     case KeyEvent.VK_UP: {
-                       if (playerPlane.y - playerPlane.speed >= playerPlane.height/2 && active == true)
-                           playerPlane.moveUp();
-                        //System.out.println("keyPressed: Up");
-                        //System.out.println("PlaneY:" + planeY);
+                       if (playerPlaneController.getModel().getY() - playerPlaneController.getModel().getSpeed() >= playerPlaneController.getModel().getHeight()/2 && active == true)
+                           playerPlaneController.getModel().moveUp();
                     }
                     break;
                     case KeyEvent.VK_DOWN: {
-                        if (playerPlane.y + playerPlane.speed <= background.height - playerPlane.height - 5 && active == true)
-                            playerPlane.moveDown();
-                        //System.out.println("keyPressed: Down");
-                        //System.out.println("PlaneY:" + planeY);
+                        if (playerPlaneController.getModel().getY()+ playerPlaneController.getModel().getSpeed() <= background.getModel().getHeight() - playerPlaneController.getModel().getHeight() - 5 && active == true)
+                            playerPlaneController.getModel().moveDown();
                     }
                     break;
                     case KeyEvent.VK_ENTER: {
@@ -152,22 +152,21 @@ public class GameWindow extends Frame {
                             active = true;
                             System.out.println("Unpaused");
                         }
-                        //System.out.println(active);
                     }break;
                     case KeyEvent.VK_SPACE: {
                         if (active == true) {
-                            PlayerBullet playerBullet = new PlayerBullet((playerPlane.x + (playerPlane.width - 8) / 2), playerPlane.y - 10, 9, 20, BULLET_SPEED, loadImageFromRes("bullet-single.png"));
-                            if (playerPlane.power == true) {
-                                playerBullet.image = loadImageFromRes("bullet-double.png");
-                                playerBullet.width = 17;
-                                playerBullet.height = 16;
-                                playerBullet.x = playerPlane.x + (playerPlane.width - 16) / 2;
-                                playerBullet.y = playerPlane.y - 10;
-                                playerBullet.speed = playerBullet.speed + 10;
+                            if (playerPlaneController.isPower() == false) {
+                                PlayerBulletController playerBulletController = new PlayerBulletController((playerPlaneController.getModel().getX() + (playerPlaneController.getModel().getWidth() - 10) / 2), playerPlaneController.getModel().getY() - 7, 10, 30, BULLET_SPEED, 0, Utils.loadImageFromRes("bullet.png"));
+                                playerPlaneController.getBulletList().add(playerBulletController);
                             }
-                            playerPlane.bulletList.add(playerBullet);
-                            //bulletExist=true;
-                            //System.out.println("keyPressed: Space");
+                            if (playerPlaneController.isPower() == true) {
+                                PlayerBulletController playerBulletController1 = new PlayerBulletController(playerPlaneController.getModel().getX() + (playerPlaneController.getModel().getWidth() - 10) / 2, playerPlaneController.getModel().getY() - 10, 10, 30, BULLET_SPEED, 0,Utils.loadImageFromRes("bullet.png"));
+                                PlayerBulletController playerBulletController2 = new PlayerBulletController(playerPlaneController.getModel().getX() + (playerPlaneController.getModel().getWidth() - 30) / 2, playerPlaneController.getModel().getY() - 10, 30, 30, BULLET_SPEED, 1,Utils.loadImageFromRes("bulletright.png"));
+                                PlayerBulletController playerBulletController3 = new PlayerBulletController(playerPlaneController.getModel().getX() + (playerPlaneController.getModel().getWidth() - 30) / 2, playerPlaneController.getModel().getY() - 10, 30, 30, BULLET_SPEED, 2,Utils.loadImageFromRes("bulletleft.png"));
+                                playerPlaneController.getBulletList().add(playerBulletController1);
+                                playerPlaneController.getBulletList().add(playerBulletController2);
+                                playerPlaneController.getBulletList().add(playerBulletController3);
+                            }
                         }
                     }
                     break;
@@ -190,8 +189,9 @@ public class GameWindow extends Frame {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
                     if(active == true) {
+
+                        //Generate stuffs
 
                         clockEnemy = clockEnemy + 1;
 
@@ -201,107 +201,115 @@ public class GameWindow extends Frame {
 
                         clockPowerUp = clockPowerUp + 1;
 
-                        //System.out.println("clockEnemy: " + clockEnemy);
+                        clockBoss = clockBoss + 1;
+
+                        if (clockBoss == 900 && bossActive == false){
+                            Random randomX = new Random();
+                            EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42),0,60,41,ENEMY_SPEED,Utils.loadImageFromRes("plane1.png"));
+                            enemyPlaneController.setBoss(true);
+                            enemyPlaneController.setMoveType(0);
+                            bossActive = true;
+                            enemyPlaneController.setLife(2);
+                            enemyPlaneControllers.add(enemyPlaneController);
+                        }
 
                         if (clockEnemy == 150) {
                             Random rd = new Random();
                             Random randomX = new Random();
                             int type = rd.nextInt(3);
-                            //System.out.println("New enemy");
-                            //System.out.println("Type: " + type);
 
                             switch (type) {
                                 case 0: {
-                                    EnemyPlane enemyPlane = new EnemyPlane(randomX.nextInt(background.width), 0, 32, 32, ENEMY_SPEED, loadImageFromRes("enemy_plane_white_3.png"));
-                                    if (enemyPlane.x == 0) enemyPlane.x = 5;
-                                    if (enemyPlane.x <= 100) enemyPlane.moveType = 1;
-                                    else if (enemyPlane.x > 100 && enemyPlane.x <= 300) enemyPlane.moveType = 0;
-                                    else if (enemyPlane.x > 300 && enemyPlane.x < background.width)
-                                        enemyPlane.moveType = 2;
-                                    switch (enemyPlane.moveType) {
+                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy_plane_white_3.png"));
+                                    if (enemyPlaneController.getModel().getX() == 0)
+                                        enemyPlaneController.getModel().setX(5);
+                                    if (enemyPlaneController.getModel().getX() <= 100)
+                                        enemyPlaneController.setMoveType(1);
+                                    else if (enemyPlaneController.getModel().getX() > 100 && enemyPlaneController.getModel().getX() <= 300)
+                                        enemyPlaneController.setMoveType(0);
+                                    else if (enemyPlaneController.getModel().getX() > 300 && enemyPlaneController.getModel().getX() < background.getModel().getWidth())
+                                        enemyPlaneController.setMoveType(2);
+                                    switch (enemyPlaneController.getMoveType()) {
                                         case 0:
                                             break;
                                         case 1:
-                                            enemyPlane.image = loadImageFromRes("enemy_plane_white_1.png");
+                                            enemyPlaneController.getView().setImage(Utils.loadImageFromRes("enemy_plane_white_1.png"));
                                             break;
                                         case 2:
-                                            enemyPlane.image = loadImageFromRes("enemy_plane_white_2.png");
+                                            enemyPlaneController.getView().setImage(Utils.loadImageFromRes("enemy_plane_white_2.png"));
                                             break;
                                     }
-                                    //System.out.println("EnemyX: " + enemyPlane.x);
-                                    //System.out.println("Enemy state: " + enemyPlane.active);
-                                    enemyPlanes.add(enemyPlane);
+                                    enemyPlaneControllers.add(enemyPlaneController);
                                     clockEnemy = 0;
                                 }
                                 break;
                                 case 1: {
-                                    EnemyPlane enemyPlane = new EnemyPlane(randomX.nextInt(background.width), 0, 32, 32, ENEMY_SPEED, loadImageFromRes("enemy_plane_yellow_3.png"));
-                                    if (enemyPlane.x == 0) enemyPlane.x = 5;
-                                    if (enemyPlane.x <= 100) enemyPlane.moveType = 1;
-                                    else if (enemyPlane.x > 100 && enemyPlane.x <= 300) enemyPlane.moveType = 0;
-                                    else if (enemyPlane.x > 300 && enemyPlane.x < background.width)
-                                        enemyPlane.moveType = 2;
-                                    switch (enemyPlane.moveType) {
+                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy_plane_yellow_3.png"));
+                                    if (enemyPlaneController.getModel().getX() == 0)
+                                        enemyPlaneController.getModel().setX(5);
+                                    if (enemyPlaneController.getModel().getX() <= 100)
+                                        enemyPlaneController.setMoveType(1);
+                                    else if (enemyPlaneController.getModel().getX() > 100 && enemyPlaneController.getModel().getX() <= 300)
+                                        enemyPlaneController.setMoveType(0);
+                                    else if (enemyPlaneController.getModel().getX() > 300 && enemyPlaneController.getModel().getX() < background.getModel().getWidth())
+                                        enemyPlaneController.setMoveType(2);
+                                    switch (enemyPlaneController.getMoveType()) {
                                         case 0:
                                             break;
                                         case 1:
-                                            enemyPlane.image = loadImageFromRes("enemy_plane_yellow_1.png");
+                                            enemyPlaneController.getView().setImage(Utils.loadImageFromRes("enemy_plane_yellow_1.png"));
                                             break;
                                         case 2:
-                                            enemyPlane.image = loadImageFromRes("enemy_plane_yellow_2.png");
+                                            enemyPlaneController.getView().setImage(Utils.loadImageFromRes("enemy_plane_yellow_2.png"));
                                             break;
                                     }
-                                    //System.out.println("EnemyX: " + enemyPlane.x);
-                                    //System.out.println("Enemy state: " + enemyPlane.active);
-                                    enemyPlanes.add(enemyPlane);
+                                    enemyPlaneControllers.add(enemyPlaneController);
                                     clockEnemy = 0;
                                 }
                                 break;
                                 case 2: {
-                                    EnemyPlane enemyPlane = new EnemyPlane(randomX.nextInt(background.width), 0, 32, 32, ENEMY_SPEED, loadImageFromRes("enemy-green-3.png"));
-                                    if (enemyPlane.x == 0) enemyPlane.x = 5;
-                                    if (enemyPlane.x <= 100) enemyPlane.moveType = 1;
-                                    else if (enemyPlane.x > 100 && enemyPlane.x <= 300) enemyPlane.moveType = 0;
-                                    else if (enemyPlane.x > 300 && enemyPlane.x < background.width)
-                                        enemyPlane.moveType = 2;
-                                    switch (enemyPlane.moveType) {
+                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy-green-3.png"));
+                                    if (enemyPlaneController.getModel().getX() == 0)
+                                        enemyPlaneController.getModel().setX(5);
+                                    if (enemyPlaneController.getModel().getX() <= 100)
+                                        enemyPlaneController.setMoveType(1);
+                                    else if (enemyPlaneController.getModel().getX() > 100 && enemyPlaneController.getModel().getX() <= 300)
+                                        enemyPlaneController.setMoveType(0);
+                                    else if (enemyPlaneController.getModel().getX() > 300 && enemyPlaneController.getModel().getX() < background.getModel().getWidth())
+                                        enemyPlaneController.setMoveType(2);
+                                    switch (enemyPlaneController.getMoveType()) {
                                         case 0:
                                             break;
                                         case 1:
-                                            enemyPlane.image = loadImageFromRes("enemy-green-1.png");
+                                            enemyPlaneController.getView().setImage(Utils.loadImageFromRes("enemy-green-1.png"));
                                             break;
                                         case 2:
-                                            enemyPlane.image = loadImageFromRes("enemy-green-2.png");
+                                            enemyPlaneController.getView().setImage(Utils.loadImageFromRes("enemy-green-2.png"));
                                             break;
                                     }
-                                    //System.out.println("EnemyX: " + enemyPlane.x);
-                                    //System.out.println("Enemy state: " + enemyPlane.active);
-                                    enemyPlanes.add(enemyPlane);
+                                    enemyPlaneControllers.add(enemyPlaneController);
                                     clockEnemy = 0;
                                 }
                                 break;
                             }
                         }
 
-                        if (clockIsland == 100) {
+                        if (clockIsland == 200) {
                             Random rd = new Random();
                             Random randomX = new Random();
                             int type = rd.nextInt(2);
-                            //System.out.println("New island");
-                            //System.out.println("Type: "+type);
-
                             switch (type) {
                                 case 0: {
-                                    Island isLand = new Island(randomX.nextInt(background.width - 63), -60, 64, 60, BACKGROUND_SPEED, loadImageFromRes("island.png"));
-                                    if (isLand.x == 0) isLand.x = 5;
-                                    isLands.add(isLand);
+                                    IslandController isLandController = new IslandController(randomX.nextInt(background.getModel().getWidth() - 63), -60, 64, 60, BACKGROUND_SPEED, Utils.loadImageFromRes("island.png"));
+                                    if (isLandController.getModel().getX() == 0) isLandController.getModel().setX(5);
+                                    isLands.add(isLandController);
                                     clockIsland = 0;
                                 }
                                 break;
                                 case 1: {
-                                    Island isLand = new Island(randomX.nextInt(background.width - 47), -51, 48, 51, BACKGROUND_SPEED, loadImageFromRes("island-2.png"));
-                                    if (isLand.x == 0) isLand.x = 5;
-                                    isLands.add(isLand);
+                                    IslandController isLandController = new IslandController(randomX.nextInt(background.getModel().getWidth() - 47), -51, 48, 51, BACKGROUND_SPEED, Utils.loadImageFromRes("island-2.png"));
+                                    if (isLandController.getModel().getX() == 0) isLandController.getModel().setX(5);
+                                    isLands.add(isLandController);
                                     clockIsland = 0;
                                 }
                                 break;
@@ -310,115 +318,121 @@ public class GameWindow extends Frame {
 
                         if (clockBomb == 300) {
                             Random randomX = new Random();
-                            //System.out.println("New Bomb");
-                            Bomb bomb = new Bomb(randomX.nextInt(background.width - 31), -32, 32, 32, BACKGROUND_SPEED, loadImageFromRes("mine.png"));
-                            if (bomb.x == 0) bomb.x = 5;
-                            Bombs.add(bomb);
+                            BombController bombController = new BombController(randomX.nextInt(background.getModel().getWidth() - 31), -32, 32, 32, BACKGROUND_SPEED, Utils.loadImageFromRes("mine.png"));
+                            if (bombController.getModel().getX() == 0) bombController.getModel().setX(5);
+                            Bombs.add(bombController);
                             clockBomb = 0;
                         }
 
                         if (clockPowerUp == 500) {
                             Random randomX = new Random();
-                            //System.out.println("New Power-up");
-                            PowerUp powerUp = new PowerUp(randomX.nextInt(background.width - 23), -25, 24, 25, BACKGROUND_SPEED, loadImageFromRes("power-up.png"));
-                            if (powerUp.x == 0) powerUp.x = 5;
+                            PowerUpController powerUp = new PowerUpController(randomX.nextInt(background.getModel().getWidth() - 23), -25, 24, 25, BACKGROUND_SPEED, Utils.loadImageFromRes("power-up.png"));
+                            if (powerUp.getModel().getX() == 0) powerUp.getModel().setX(5);
                             powerUps.add(powerUp);
                             clockPowerUp = 0;
                         }
 
-                    /*bulletY -= BULLET_SPEED;
-                    if (bulletY - BULLET_SPEED <= 0){
-                        bulletExist = false;
-                        bulletY = windowY - planeY - 33;
-                    }*/
-
-                        for (PlayerBullet temp : playerPlane.bulletList) {
+                        // Generate bullets
+                        for (EnemyPlaneController temp : enemyPlaneControllers) {
                             if (temp != null) {
-                                temp.y -= temp.speed;
-                                if (temp.y < 0) temp.active = false;
-                            }
-                        }
-
-                        for (Bomb temp : Bombs) {
-                            if (temp != null) {
-                                temp.y += temp.speed;
-                                if (temp.y > background.height) {
-                                    temp.active = false;
-                                    temp.kill = 0;
-                                }
-                            }
-                        }
-
-                        for (PowerUp temp : powerUps) {
-                            if (temp != null) {
-                                temp.y += temp.speed;
-                                if (temp.y > background.height) {
-                                    temp.active = false;
-                                }
-                            }
-                        }
-
-                        for (EnemyPlane temp : enemyPlanes) {
-                            if (temp != null && temp.y <= background.height) {
-                                //System.out.println("moveType: " + temp.moveType);
-                                switch (temp.moveType) {
-                                    case 0:
-                                        temp.moveDown();
-                                        break;
-                                    case 1:
-                                        temp.moveRightDown();
-                                        break;
-                                    case 2:
-                                        temp.moveLeftDown();
-                                        break;
-                                }
-                                if (temp.y > background.height || temp.x > background.width || temp.x < 0) {
-                                    temp.active = false;
-                                    temp.kill = 0;
-                                }
-                            }
-                        }
-
-                        for (EnemyPlane temp : enemyPlanes) {
-                            if (temp != null && temp.y <= background.height) {
                                 if (clockEnemy % 50 == 0) {
-                                    //System.out.println("Incoming!");
-                                    EnemyBullet enemyBullet = new EnemyBullet(temp.x, temp.y + 5, 32, 32, ENEMY_BULLET_SPEED, loadImageFromRes("enemy_bullet.png"));
-                                    temp.bulletList.add(enemyBullet);
+                                    if (temp.isBoss()==false) {
+                                        EnemyBulletController enemyBullet = new EnemyBulletController((temp.getModel().getX() + (temp.getModel().getWidth() - 10) / 2), temp.getModel().getY() + 10, 9, 9, ENEMY_BULLET_SPEED, temp.getMoveType(), Utils.loadImageFromRes("bullet-round.png"));
+                                        temp.getBulletList().add(enemyBullet);
+                                    }
+                                    if (temp.isBoss()==true){
+                                        EnemyBulletController enemyBullet1 = new EnemyBulletController((temp.getModel().getX() + (temp.getModel().getWidth() - 10) / 2), temp.getModel().getY() + 10, 9, 9, ENEMY_BULLET_SPEED, 0, Utils.loadImageFromRes("bullet-round.png"));
+                                        EnemyBulletController enemyBullet2 = new EnemyBulletController((temp.getModel().getX() + (temp.getModel().getWidth() - 10) / 2), temp.getModel().getY() + 10, 9, 9, ENEMY_BULLET_SPEED, 1, Utils.loadImageFromRes("bullet-left.png"));
+                                        EnemyBulletController enemyBullet3 = new EnemyBulletController((temp.getModel().getX() + (temp.getModel().getWidth() - 10) / 2), temp.getModel().getY() + 10, 9, 9, ENEMY_BULLET_SPEED, 2, Utils.loadImageFromRes("bullet-right.png"));
+                                        temp.getBulletList().add(enemyBullet1);
+                                        temp.getBulletList().add(enemyBullet2);
+                                        temp.getBulletList().add(enemyBullet3);
+                                    }
                                 }
                             }
                         }
 
-                        for (EnemyPlane temp : enemyPlanes) {
+                        for (PlayerBulletController temp : playerPlaneController.getBulletList()) {
                             if (temp != null) {
-                                for (EnemyBullet tempBullet : temp.bulletList) {
-                                    if (tempBullet != null && tempBullet.y <= background.height)
-                                        tempBullet.y += tempBullet.speed;
-                                    if (temp.y > background.height + 10 || temp.x > background.width + 10 || temp.x < -10)
-                                        temp.active = false;
+                                if (temp.getModel().getY() < 0) temp.setActive(false);
+                            }
+                        }
+
+                        // Check conditions to evaluate for deletion
+                        for (BombController temp : Bombs) {
+                            if (temp != null) {
+                                if (temp.getModel().getY() > background.getModel().getHeight()) {
+                                    temp.setActive(false);
+                                    temp.setKill(0);
                                 }
                             }
                         }
 
-                        for (Island temp : isLands) {
-                            if (temp != null && temp.y <= background.height)
-                                temp.y += temp.speed;
-                            if (temp.y > background.height || temp.x > background.width || temp.x < 0)
-                                temp.active = false;
+                        for (PowerUpController temp : powerUps) {
+                            if (temp != null) {
+                                if (temp.getModel().getY() > background.getModel().getHeight()) {
+                                    temp.setActive(false);
+                                }
+                            }
                         }
 
-                        for (PlayerBullet temp1 : playerPlane.bulletList) {
-                            for (EnemyPlane temp2 : enemyPlanes) {
+                        for (EnemyPlaneController temp : enemyPlaneControllers) {
+                            if (temp != null) {
+                                if (temp.getModel().getY() > background.getModel().getHeight() || temp.getModel().getX() > background.getModel().getWidth() || temp.getModel().getX() < 0) {
+                                    temp.setActive(false);
+                                    temp.setKill(0);
+                                    temp.setLife(0);
+                                }
+                            }
+                        }
+
+                        for (EnemyPlaneController temp : enemyPlaneControllers) {
+                            if (temp != null) {
+                                for (EnemyBulletController tempBullet : temp.getBulletList()) {
+                                    if (tempBullet.getModel().getY() > background.getModel().getHeight() + 10 || tempBullet.getModel().getX() > background.getModel().getWidth() + 10 || tempBullet.getModel().getX() < -10)
+                                        tempBullet.setActive(false);
+                                }
+                            }
+                        }
+
+                        for (EnemyBulletController temp: enemyBulletStray){
+                            if (temp.getModel().getY() > background.getModel().getHeight() + 10 || temp.getModel().getX() > background.getModel().getWidth() + 10 || temp.getModel().getX() < -10)
+                                temp.setActive(false);
+                            if ((temp.getModel().getY() + temp.getModel().getHeight() > playerPlaneController.getModel().getY() && temp.getModel().getY() < playerPlaneController.getModel().getY() + playerPlaneController.getModel().getHeight()) && (temp.getModel().getX() + temp.getModel().getWidth() > playerPlaneController.getModel().getX() && temp.getModel().getX() < playerPlaneController.getModel().getX() + playerPlaneController.getModel().getWidth())){
+                                if (playerPlaneController.isPower() == false)
+                                    playerPlaneController.setActive(false);
+                                temp.setActive(false);
+                            }
+                        }
+
+                        for (IslandController temp : isLands) {
+                            if (temp.getModel().getY() > background.getModel().getHeight() || temp.getModel().getX() > background.getModel().getWidth() || temp.getModel().getX() < 0)
+                                temp.setActive(false);
+                        }
+
+                        for (PlayerBulletController temp1 : playerPlaneController.getBulletList()) {
+                            for (EnemyPlaneController temp2 : enemyPlaneControllers) {
                                 if (temp1 != null && temp2 != null) {
-                                    //System.out.println("Hit");
-                                    if ((temp1.y + temp1.height > temp2.y && temp1.y < temp2.y + temp2.height) && (temp1.x + temp1.width > temp2.x && temp1.x < temp2.x + temp2.width)) {
-                                        //System.out.println("Bullet x: " + temp1.x +" Bullet y: " +temp1.y);
-                                        //System.out.println("Enemy x: " + temp2.x +" Enemy y: " +temp2.y);
-                                        temp2.active = false;
-                                        temp1.active = false;
-                                        if (temp2.moveType == 0) {
-                                            score = score + 2;
-                                            System.out.println("Score: " + score + " (+2)");
+                                    if ((temp1.getModel().getY() + temp1.getModel().getHeight() > temp2.getModel().getY() && temp1.getModel().getY() < temp2.getModel().getY() + temp2.getModel().getHeight()) && (temp1.getModel().getX() + temp1.getModel().getWidth() > temp2.getModel().getX() && temp1.getModel().getX() < temp2.getModel().getX() + temp2.getModel().getWidth())) {
+                                        temp1.setActive(false);
+                                        if (temp2.isBoss() == false) {
+                                            temp2.setActive(false);
+                                        }
+                                        temp2.setLife(temp2.getLife() - 1);
+                                        if (temp2.isBoss() == true && temp2.getLife()==0){
+                                            temp2.setActive(false);
+                                            bossActive = false;
+                                            clockBoss = 0;
+                                        }
+                                        if (temp2.getMoveType() == 0) {
+                                            if (temp2.isBoss() == false) {
+                                                score = score + 2;
+                                                System.out.println("Score: " + score + " (+2)");
+                                            }
+                                            if (temp2.isBoss() == true && temp2.isActive() == false){
+                                                score = score + 10;
+                                                System.out.println("Score: " + score + " (+10)");
+                                            }
                                         } else {
                                             score++;
                                             System.out.println("Score: " + score + " (+1)");
@@ -428,63 +442,41 @@ public class GameWindow extends Frame {
                             }
                         }
 
-                        for (EnemyPlane temp1 : enemyPlanes) {
-                            for (EnemyBullet temp2 : temp1.bulletList) {
+                        for (EnemyPlaneController temp1 : enemyPlaneControllers) {
+                            for (EnemyBulletController temp2 : temp1.getBulletList()) {
                                 if (temp1 != null && temp2 != null) {
-                                    //System.out.println("Hit");
-                                    if ((temp2.y + temp2.height > playerPlane.y && temp2.y < playerPlane.y + playerPlane.height) && (temp2.x + temp2.width > playerPlane.x && temp2.x < playerPlane.x + playerPlane.width)) {
-                                        //System.out.println("Bullet x: " + temp2.x + " Bullet y: " + temp2.y);
-                                        //System.out.println("Player x: " + playerPlane.x +" Player y: " + playerPlane.y);
-                                        if (playerPlane.power == false)
-                                            playerPlane.active = false;
-                                        temp2.active = false;
+                                    if ((temp2.getModel().getY() + temp2.getModel().getHeight() > playerPlaneController.getModel().getY() && temp2.getModel().getY() < playerPlaneController.getModel().getY() + playerPlaneController.getModel().getHeight()) && (temp2.getModel().getX() + temp2.getModel().getWidth() > playerPlaneController.getModel().getX() && temp2.getModel().getX() < playerPlaneController.getModel().getX() + playerPlaneController.getModel().getWidth())){
+                                        if (playerPlaneController.isPower() == false)
+                                            playerPlaneController.setActive(false);
+                                        temp2.setActive(false);
                                     }
                                 }
                             }
                         }
 
-                        for (Bomb temp : Bombs) {
+                        for (BombController temp : Bombs) {
                             if (temp != null)
-                                //System.out.println("Hit");
-                                if ((temp.y + temp.height > playerPlane.y && temp.y < playerPlane.y + playerPlane.height) && (temp.x + temp.width > playerPlane.x && temp.x < playerPlane.x + playerPlane.width)) {
-                                    //System.out.println("Bomb x: " + temp.x + " Bomb y: " + temp.y);
-                                    //System.out.println("Player x: " + playerPlane.x +" Player y: " + playerPlane.y);
-                                    if (playerPlane.power == false)
-                                        playerPlane.active = false;
-                                    temp.active = false;
+                                if ((temp.getModel().getY() + temp.getModel().getHeight() > playerPlaneController.getModel().getY() && temp.getModel().getY() < playerPlaneController.getModel().getY() + playerPlaneController.getModel().getHeight()) && (temp.getModel().getX() + temp.getModel().getWidth() > playerPlaneController.getModel().getX() && temp.getModel().getX() < playerPlaneController.getModel().getX() + playerPlaneController.getModel().getWidth())) {
+                                    if (playerPlaneController.isPower() == false)
+                                        playerPlaneController.setActive(false);
+                                    temp.setActive(false);
                                 }
                         }
 
-                        for (PowerUp temp : powerUps) {
+                        for (PowerUpController temp : powerUps) {
                             if (temp != null)
-                                //System.out.println("Hit");
-                                if ((temp.y + temp.height > playerPlane.y && temp.y < playerPlane.y + playerPlane.height) && (temp.x + temp.width > playerPlane.x && temp.x < playerPlane.x + playerPlane.width)) {
-                                    //System.out.println("Power-up x: " + temp.x + " Power-up y: " + temp.y);
-                                    //System.out.println("Player x: " + playerPlane.x +" Player y: " + playerPlane.y);
-                                    temp.active = false;
-                                    playerPlane.power = true;
+                                if ((temp.getModel().getY() + temp.getModel().getHeight() > playerPlaneController.getModel().getY() && temp.getModel().getY() < playerPlaneController.getModel().getY() + playerPlaneController.getModel().getY()) && (temp.getModel().getY() + temp.getModel().getWidth() > playerPlaneController.getModel().getX() && temp.getModel().getX() < playerPlaneController.getModel().getX() + playerPlaneController.getModel().getWidth())) {
+                                    temp.setActive(false);
+                                    playerPlaneController.setPower(true);
                                 }
                         }
 
-                        if (playerPlane.power == true) {
-                            playerPlane.image = loadImageFromRes("plane4.png");
-                            playerPlane.invulnerable--;
-                            if (playerPlane.invulnerable == 0) {
-                                playerPlane.image = loadImageFromRes("plane3.png");
-                                playerPlane.power = false;
-                                playerPlane.invulnerable = 300;
-                            }
-                        }
-
-                        for (PlayerBullet temp1 : playerPlane.bulletList) {
-                            for (Bomb temp2 : Bombs) {
+                        for (PlayerBulletController temp1 : playerPlaneController.getBulletList()) {
+                            for (BombController temp2 : Bombs) {
                                 if (temp1 != null && temp2 != null) {
-                                    //System.out.println("Hit");
-                                    if ((temp1.y + temp1.height > temp2.y && temp1.y < temp2.y + temp2.height) && (temp1.x + temp1.width > temp2.x && temp1.x < temp2.x + temp2.width)) {
-                                        //System.out.println("Bullet x: " + temp1.x +" Bullet y: " +temp1.y);
-                                        //System.out.println("Bomb x: " + temp2.x +" Bomb y: " +temp2.y);
-                                        temp2.active = false;
-                                        temp1.active = false;
+                                    if ((temp1.getModel().getY() + temp1.getModel().getHeight() > temp2.getModel().getY() && temp1.getModel().getY() < temp2.getModel().getY() + temp2.getModel().getHeight()) && (temp1.getModel().getX() + temp1.getModel().getWidth() > temp2.getModel().getX() && temp1.getModel().getX() < temp2.getModel().getX() + temp2.getModel().getWidth())) {
+                                        temp2.setActive(false);
+                                        temp1.setActive(false);
                                         score++;
                                         System.out.println("Score: " + score + " (+1)");
                                     }
@@ -492,186 +484,81 @@ public class GameWindow extends Frame {
                             }
                         }
 
-                        if (playerPlane.power == true) {
-                            //System.out.println("Enemy kill 1: " + temp.kill);
-                            switch (playerPlane.invulnerable) {
-                                case 50:
-                                    playerPlane.image = loadImageFromRes("plane3.png");
-                                    break;
-                                case 40:
-                                    playerPlane.image = loadImageFromRes("plane3.png");
-                                    break;
-                                case 30:
-                                    playerPlane.image = loadImageFromRes("plane3.png");
-                                    break;
-                                case 20:
-                                    playerPlane.image = loadImageFromRes("plane3.png");
-                                    break;
-                                case 10:
-                                    playerPlane.image = loadImageFromRes("plane3.png");
-                                    break;
-                            }
-                        }
+                        //Run and delete elements
+                        Iterator<EnemyPlaneController> enemyPlaneControllerIterator = enemyPlaneControllers.iterator();
 
-                        Iterator<EnemyPlane> enemyPlaneKillIterator = enemyPlanes.iterator();
-
-                        while (enemyPlaneKillIterator.hasNext()) {
-                            EnemyPlane temp = enemyPlaneKillIterator.next();
-                            if (temp.active == false) {
-                                //System.out.println("Enemy kill 1: " + temp.kill);
-                                switch (temp.kill) {
-                                    case 6:
-                                        temp.image = loadImageFromRes("explosion6.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 5:
-                                        temp.image = loadImageFromRes("explosion5.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 4:
-                                        temp.image = loadImageFromRes("explosion4.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 3:
-                                        temp.image = loadImageFromRes("explosion3.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 2:
-                                        temp.image = loadImageFromRes("explosion2.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 1:
-                                        temp.image = loadImageFromRes("explosion1.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
+                        while (enemyPlaneControllerIterator.hasNext()) {
+                            EnemyPlaneController temp = enemyPlaneControllerIterator.next();
+                            temp.run();
+                            if (temp.isActive() == false && temp.getKill() == 0 && temp.getLife() == 0){
+                                for (EnemyBulletController tempBullet:temp.getBulletList()){
+                                    enemyBulletStray.add(tempBullet);
                                 }
+                                enemyPlaneControllerIterator.remove();
                             }
                         }
 
-                        Iterator<Bomb> bombIteratorKill = Bombs.iterator();
+                        Iterator<BombController> bombControllerIterator = Bombs.iterator();
 
-                        while (bombIteratorKill.hasNext()) {
-                            Bomb temp = bombIteratorKill.next();
-                            if (temp.active == false) {
-                                //System.out.println("Bomb kill: " + temp.kill);
-                                switch (temp.kill) {
-                                    case 6:
-                                        temp.image = loadImageFromRes("explosion6.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 5:
-                                        temp.image = loadImageFromRes("explosion5.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 4:
-                                        temp.image = loadImageFromRes("explosion4.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 3:
-                                        temp.image = loadImageFromRes("explosion3.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 2:
-                                        temp.image = loadImageFromRes("explosion2.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                    case 1:
-                                        temp.image = loadImageFromRes("explosion1.png");
-                                        temp.kill = temp.kill - 1;
-                                        break;
-                                }
-                            }
+                        while (bombControllerIterator.hasNext()) {
+                            BombController temp = bombControllerIterator.next();
+                            temp.run();
+                            if (temp.isActive() == false && temp.getKill() == 0) bombControllerIterator.remove();
                         }
 
-                        for (EnemyPlane temp1 : enemyPlanes) {
-                            Iterator<EnemyBullet> enemyBulletIterator = temp1.bulletList.iterator();
-                            while (enemyBulletIterator.hasNext()) {
-                                EnemyBullet temp2 = enemyBulletIterator.next();
-                                if (temp2.active == false) enemyBulletIterator.remove();
-                            }
-                        }
-
-                        Iterator<EnemyPlane> enemyPlaneIterator = enemyPlanes.iterator();
-
-                        Iterator<PlayerBullet> bulletIterator = playerPlane.bulletList.iterator();
-
-                        Iterator<Island> islandIterator = isLands.iterator();
-
-                        Iterator<Bomb> bombIterator = Bombs.iterator();
-
-                        Iterator<PowerUp> powerUpIterator = powerUps.iterator();
+                        Iterator<PowerUpController> powerUpIterator = powerUps.iterator();
 
                         while (powerUpIterator.hasNext()) {
-                            PowerUp temp = powerUpIterator.next();
-                            //System.out.println("Power-up state: " + temp.active);
-                            if (temp.active == false) powerUpIterator.remove();
+                            PowerUpController temp = powerUpIterator.next();
+                            temp.run();
+                            if (temp.isActive() == false) powerUpIterator.remove();
                         }
 
-                        while (enemyPlaneIterator.hasNext()) {
-                            EnemyPlane temp = enemyPlaneIterator.next();
-                            //System.out.println("Enemy state 2: "+ temp.active);
-                            //System.out.println("Enemy kill 2: "+ temp.kill);
-                            if (temp.active == false && temp.kill == 0) enemyPlaneIterator.remove();
-                        }
-
-                        while (bulletIterator.hasNext()) {
-                            PlayerBullet temp = bulletIterator.next();
-                            //System.out.println("Bullet state: " + temp.active);
-                            if (temp.active == false) bulletIterator.remove();
-                        }
-
-                        while (bombIterator.hasNext()) {
-                            Bomb temp = bombIterator.next();
-                            //System.out.println("Bomb state: " + temp.active);
-                            if (temp.active == false && temp.kill == 0) bombIterator.remove();
-                        }
-
-                        while (islandIterator.hasNext()) {
-                            Island temp = islandIterator.next();
-                            //System.out.println("Island state: " + temp.active);
-                            if (temp.active == false) islandIterator.remove();
-                        }
-
-                        background.y += background.speed;
-                        backgroundBuffer.y += background.speed;
-                        if (background.y == 600) {
-                            backgroundBuffer.y = -600;
-                            background.y = 0;
-                        }
-
-                        if (playerPlane.active == false) {
-                            playerPlane.width = 64;
-                            playerPlane.height = 64;
-                            //System.out.println("Player kill : " + playerPlane.kill);
-                            switch (playerPlane.kill) {
-                                case 6:
-                                    playerPlane.image = loadImageFromRes("explosion6.png");
-                                    playerPlane.kill = playerPlane.kill - 1;
-                                    break;
-                                case 5:
-                                    playerPlane.image = loadImageFromRes("explosion5.png");
-                                    playerPlane.kill = playerPlane.kill - 1;
-                                    break;
-                                case 4:
-                                    playerPlane.image = loadImageFromRes("explosion4.png");
-                                    playerPlane.kill = playerPlane.kill - 1;
-                                    break;
-                                case 3:
-                                    playerPlane.image = loadImageFromRes("explosion3.png");
-                                    playerPlane.kill = playerPlane.kill - 1;
-                                    break;
-                                case 2:
-                                    playerPlane.image = loadImageFromRes("explosion2.png");
-                                    playerPlane.kill = playerPlane.kill - 1;
-                                    break;
-                                case 1:
-                                    playerPlane.image = loadImageFromRes("explosion1.png");
-                                    playerPlane.kill = playerPlane.kill - 1;
-                                    break;
+                        for (EnemyPlaneController temp1 : enemyPlaneControllers) {
+                            Iterator<EnemyBulletController> enemyBulletIterator = temp1.getBulletList().iterator();
+                            while (enemyBulletIterator.hasNext()) {
+                                EnemyBulletController temp2 = enemyBulletIterator.next();
+                                temp2.run();
+                                if (temp2.isActive() == false) enemyBulletIterator.remove();
                             }
                         }
 
-                        if (playerPlane.active == false && playerPlane.kill == 0) {
+                        Iterator<EnemyBulletController> enemyBulletStrayIterator = enemyBulletStray.iterator();
+
+                        while(enemyBulletStrayIterator.hasNext()){
+                            EnemyBulletController temp = enemyBulletStrayIterator.next();
+                            temp.run();
+                            if (temp.isActive() == false) enemyBulletStrayIterator.remove();
+                        }
+
+
+                        Iterator<PlayerBulletController> bulletIterator = playerPlaneController.getBulletList().iterator();
+
+                        while (bulletIterator.hasNext()) {
+                            PlayerBulletController temp = bulletIterator.next();
+                            temp.run();
+                            if (temp.isActive() == false) bulletIterator.remove();
+                        }
+
+                        Iterator<IslandController> islandIterator = isLands.iterator();
+
+                        while (islandIterator.hasNext()) {
+                            IslandController temp = islandIterator.next();
+                            temp.run();
+                            if (temp.isActive() == false) islandIterator.remove();
+                        }
+
+                        playerPlaneController.run();
+
+                        background.run();
+                        backgroundBuffer.run();
+
+                        if (background.getModel().getY() == 600) {
+                            backgroundBuffer.getModel().setY(-600);
+                            background.getModel().setY(0);
+                        }
+
+                        if (playerPlaneController.isActive() == false && playerPlaneController.getKill() == 0) {
                             System.out.println("YOU LOST");
                             System.out.println("FINAL SCORE: " + score);
                             String name;
@@ -729,79 +616,71 @@ public class GameWindow extends Frame {
             thread.start();
     }
 
-    private Image loadImageFromRes(String url) {
-        try {
-            return ImageIO.read(new File("resources/" + url));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     @Override
     public void update(Graphics g) {
         if (backBufferImage != null) {
             backGraphics = backBufferImage.getGraphics();
 
-            backGraphics.drawImage(background.image, background.x, background.y, background.width, background.height, null);
-            backGraphics.drawImage(backgroundBuffer.image, backgroundBuffer.x, backgroundBuffer.y, backgroundBuffer.width, backgroundBuffer.height, null);
+            background.getView().draw(backGraphics,background.getModel());
+            backgroundBuffer.getView().draw(backGraphics,backgroundBuffer.getModel());
 
-            if (playerPlane.active == false){
-                backGraphics.drawImage(gameover.image, gameover.x, gameover.y, gameover.width, gameover.height, null);
+            if (playerPlaneController.isActive() == false){
+                gameover.getView().draw(backGraphics,gameover.getModel());
             }
 
-            for(Island temp:isLands) {
+            for(IslandController temp:isLands) {
                 if (temp != null) {
-                    backGraphics.drawImage(temp.image, temp.x, temp.y,temp.width,temp.height, null);
+                    temp.getView().draw(backGraphics,temp.getModel());
                 }
             }
 
-            for(EnemyPlane temp:enemyPlanes) {
+            for(EnemyPlaneController temp:enemyPlaneControllers) {
                 if (temp != null) {
-                    backGraphics.drawImage(temp.image, temp.x, temp.y, temp.width, temp.height, null);
+                    temp.getView().draw(backGraphics,temp.getModel());
                 }
             }
 
-            /*if (bulletExist)
-                backGraphics.drawImage(bulletImage, bulletX, bulletY, 13, 33, null);*/
-            /*if (playerBullet != null)
-                backGraphics.drawImage(playerBullet.image,playerBullet.x,playerBullet.y,13,33,null);*/
-
-            for(PlayerBullet temp:playerPlane.bulletList) {
+            for(PlayerBulletController temp:playerPlaneController.getBulletList()) {
                 if (temp != null) {
-                    backGraphics.drawImage(temp.image,temp.x,temp.y,temp.width,temp.height,null);
+                    temp.getView().draw(backGraphics,temp.getModel());
                 }
             }
 
-            for(EnemyPlane temp:enemyPlanes){
+            for(EnemyPlaneController temp:enemyPlaneControllers){
                 if (temp != null){
-                    for(EnemyBullet tempBullet:temp.bulletList){
+                    for(EnemyBulletController tempBullet:temp.getBulletList()){
                         if (tempBullet != null)
-                            backGraphics.drawImage(tempBullet.image, tempBullet.x, tempBullet.y, tempBullet.width, tempBullet.height,null);
+                            tempBullet.getView().draw(backGraphics,tempBullet.getModel());
                     }
                 }
             }
 
-            for(PowerUp temp:powerUps) {
+            for(EnemyBulletController temp:enemyBulletStray){
+                if (temp != null)
+                    temp.getView().draw(backGraphics,temp.getModel());
+            }
+
+            for(PowerUpController temp:powerUps) {
                 if (temp != null) {
-                    backGraphics.drawImage(temp.image,temp.x,temp.y,temp.width,temp.height,null);
+                    temp.getView().draw(backGraphics,temp.getModel());
                 }
             }
 
-            for(Bomb temp:Bombs) {
+            for(BombController temp:Bombs) {
                 if (temp != null) {
-                    backGraphics.drawImage(temp.image,temp.x,temp.y,temp.width,temp.height,null);
+                    temp.getView().draw(backGraphics,temp.getModel());
                 }
             }
 
-            backGraphics.drawImage(playerPlane.image, playerPlane.x, playerPlane.y, playerPlane.width, playerPlane.height, null);
+            playerPlaneController.getView().draw(backGraphics,playerPlaneController.getModel());
 
             if (active == false){
-                backGraphics.drawImage(paused.image, paused.x, paused.y, paused.width, paused.height, null);
+                paused.getView().draw(backGraphics,paused.getModel());
             }
 
-            if (playerPlane.active == false){
-                backGraphics.drawImage(wasted.image, wasted.x, wasted.y, wasted.width, wasted.height, null);
+            if (playerPlaneController.isActive() == false){
+                wasted.getView().draw(backGraphics,wasted.getModel());
             }
 
             g.drawImage(backBufferImage, 0, 0, null);
