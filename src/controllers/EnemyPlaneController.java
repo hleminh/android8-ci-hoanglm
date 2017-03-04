@@ -1,54 +1,47 @@
 package controllers;
 
+import game.GameWindow;
 import models.EnemyPlaneModel;
 import utils.Utils;
-import views.EnemyPlaneView;
-import java.util.Random;
-import java.awt.*;
-import java.util.ArrayList;
+import views.GameView;
 
-public class EnemyPlaneController {
-    private boolean active = true;
+import java.awt.*;
+import java.util.Random;
+import java.util.Vector;
+
+public class EnemyPlaneController extends GameController {
     private int kill = 6;
     private int life = 1;
     private boolean power = false;
     private int invulnerable = 300;
     private int moveType;
     private boolean isBoss = false;
+    private boolean isDank = false;
+    private int bulletDelay = 20;
 
-    private EnemyPlaneModel model;
-    private EnemyPlaneView view;
+    private Vector<GameController> bulletList;
+    private Vector<GameController> collidables;
 
-    private ArrayList<EnemyBulletController> bulletList = new ArrayList<EnemyBulletController>();
-
-
-    public EnemyPlaneController(EnemyPlaneModel model, EnemyPlaneView view) {
-        this.model = model;
-        this.view = view;
-
+    public EnemyPlaneController(GameView view, EnemyPlaneModel model) {
+        super(view, model);
     }
 
-    public EnemyPlaneController(int x, int y,int width,int height, int speed, Image image){
+    public EnemyPlaneController(int x, int y, int width, int height, int speed, Image image, Vector<GameController> enemyBulletControllers, Vector<GameController> collidables) {
         this(
-                new EnemyPlaneModel(x,y,width,height,speed),
-                new EnemyPlaneView(image)
+                new GameView(image),
+                new EnemyPlaneModel(x, y, width, height, speed)
         );
+        this.bulletList = enemyBulletControllers;
+        this.collidables = collidables;
     }
 
-    public EnemyPlaneModel getModel() {
-        return model;
+
+    public boolean isDank() {
+        return isDank;
     }
 
-    public EnemyPlaneView getView() {
-        return view;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setDank(boolean dank) {
+        isDank = dank;
     }
 
     public int getKill() {
@@ -83,10 +76,6 @@ public class EnemyPlaneController {
         this.moveType = moveType;
     }
 
-    public ArrayList<EnemyBulletController> getBulletList() {
-        return bulletList;
-    }
-
     public boolean isBoss() {
         return isBoss;
     }
@@ -103,87 +92,137 @@ public class EnemyPlaneController {
         this.life = life;
     }
 
-    public void run(){
-        switch (moveType) {
-            case 0:
-                if (isBoss()==true){
-                   model.moveDown();
-                   if (model.getY() >= 600){
-                       model.setY(0);
-                       Random randomX = new Random();
-                       model.setX(randomX.nextInt(400 - 42));
-                   }
-                }
-                if (isBoss()==false) {
-                    model.moveDown();
-                }
-                break;
-            case 1:
-                model.moveRightDown();
-                break;
-            case 2:
-                model.moveLeftDown();
-                break;
-        }
-        if (isActive() == false && isBoss()==false && getLife() == 0) {
-            switch (getKill()) {
-                case 6:
-                    getView().setImage(Utils.loadImageFromRes("explosion6.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 5:
-                    getView().setImage(Utils.loadImageFromRes("explosion5.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 4:
-                    getView().setImage(Utils.loadImageFromRes("explosion4.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 3:
-                    getView().setImage(Utils.loadImageFromRes("explosion3.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 2:
-                    getView().setImage(Utils.loadImageFromRes("explosion2.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 1:
-                    getView().setImage(Utils.loadImageFromRes("explosion1.png"));
-                    setKill(getKill() - 1);
-                    break;
-            }
-        }
-        if (isActive() == false && isBoss()==true && getLife()==0) {
-            switch (getKill()) {
-                case 6:
-                    getView().setImage(Utils.loadImageFromRes("explosion6.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 5:
-                    getView().setImage(Utils.loadImageFromRes("explosion5.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 4:
-                    getView().setImage(Utils.loadImageFromRes("explosion4.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 3:
-                    getView().setImage(Utils.loadImageFromRes("explosion3.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 2:
-                    getView().setImage(Utils.loadImageFromRes("explosion2.png"));
-                    setKill(getKill() - 1);
-                    break;
-                case 1:
-                    getView().setImage(Utils.loadImageFromRes("explosion1.png"));
-                    setKill(getKill() - 1);
-                    break;
-            }
-        }
+    public Vector<GameController> getBulletList() {
+        return bulletList;
     }
 
-    public void draw(Graphics graphic){
-        view.draw(graphic,model);
+
+    public void setBulletList(Vector<GameController> bulletList) {
+        this.bulletList = bulletList;
+    }
+
+    public synchronized void run() {
+        if (model instanceof EnemyPlaneModel) {
+            if (bulletDelay > 0)
+                bulletDelay--;
+            if (bulletDelay == 0) {
+                if (isBoss() == false && isDank() == false) {
+                    EnemyBulletController enemyBullet = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, getMoveType(), Utils.loadImageFromRes("bullet-round.png"));
+                    getBulletList().add(enemyBullet);
+                    collidables.add(enemyBullet);
+                    bulletDelay = 30;
+                }
+                if (isBoss() == true) {
+                    EnemyBulletController enemyBullet1 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 0, Utils.loadImageFromRes("bullet-round.png"));
+                    EnemyBulletController enemyBullet2 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 1, Utils.loadImageFromRes("bullet-left.png"));
+                    EnemyBulletController enemyBullet3 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 2, Utils.loadImageFromRes("bullet-right.png"));
+                    getBulletList().add(enemyBullet1);
+                    getBulletList().add(enemyBullet2);
+                    getBulletList().add(enemyBullet3);
+                    collidables.add(enemyBullet1);
+                    collidables.add(enemyBullet2);
+                    collidables.add(enemyBullet3);
+                    bulletDelay = 30;
+                }
+                if (isDank() == true) {
+                    EnemyBulletController enemyBullet = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 32, 31, GameWindow.ENEMY_BULLET_SPEED, 3, Utils.loadImageFromRes("dank.png"));
+                    getBulletList().add(enemyBullet);
+                    collidables.add(enemyBullet);
+                    bulletDelay = 70;
+                }
+            }
+            switch (moveType) {
+                case 0:
+                    ((EnemyPlaneModel) model).moveDown();
+                    break;
+                case 1:
+                    ((EnemyPlaneModel) model).moveRightDown();
+                    break;
+                case 2:
+                    ((EnemyPlaneModel) model).moveLeftDown();
+                    break;
+                case 3: {
+                    ((EnemyPlaneModel) model).moveDown();
+                    if (model.getY() >= 600) {
+                        model.setY(0);
+                        Random randomX = new Random();
+                        model.setX(randomX.nextInt(400 - 42));
+                    }
+                    break;
+                }
+                case 4:
+                    ((EnemyPlaneModel) model).moveToPlayer();
+                    break;
+                case 5:
+                    ((EnemyPlaneModel) model).moveAwayFromPlayer();
+                    break;
+            }
+        }
+        if (getModel().getY() > GameWindow.windowY || getModel().getX() > GameWindow.windowX || getModel().getX() < 0) {
+            if (isBoss() == false) {
+                setActive(false);
+                setKill(0);
+                setLife(0);
+            }
+        }
+        if (isActive() == false && isBoss() == false && getLife() == 0) {
+            switch (getKill()) {
+                case 6:
+                    getView().setImage(Utils.loadImageFromRes("explosion6.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 5:
+                    getView().setImage(Utils.loadImageFromRes("explosion5.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 4:
+                    getView().setImage(Utils.loadImageFromRes("explosion4.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 3:
+                    getView().setImage(Utils.loadImageFromRes("explosion3.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 2:
+                    getView().setImage(Utils.loadImageFromRes("explosion2.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 1:
+                    getView().setImage(Utils.loadImageFromRes("explosion1.png"));
+                    setKill(getKill() - 1);
+                    break;
+            }
+        }
+        if (isBoss() == true && getLife() == 1) {
+            getView().setImage(Utils.loadImageFromRes("plane1-2.png"));
+        }
+        if (isActive() == false && isBoss() == true && getLife() == 0) {
+            switch (getKill()) {
+                case 6:
+                    getView().setImage(Utils.loadImageFromRes("explosion6.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 5:
+                    getView().setImage(Utils.loadImageFromRes("explosion5.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 4:
+                    getView().setImage(Utils.loadImageFromRes("explosion4.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 3:
+                    getView().setImage(Utils.loadImageFromRes("explosion3.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 2:
+                    getView().setImage(Utils.loadImageFromRes("explosion2.png"));
+                    setKill(getKill() - 1);
+                    break;
+                case 1:
+                    getView().setImage(Utils.loadImageFromRes("explosion1.png"));
+                    setKill(getKill() - 1);
+                    break;
+            }
+        }
     }
 }

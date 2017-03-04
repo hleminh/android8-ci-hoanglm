@@ -1,41 +1,26 @@
 package controllers;
 
+import game.GameWindow;
 import models.IslandModel;
-import utils.Utils;
-import views.IslandView;
+import views.GameView;
 
 import java.awt.*;
 
-public class IslandController {
+public class IslandController extends GameController{
     private boolean active = true;
     private int kill = 6;
     private boolean power = false;
     private int invulnerable = 300;
 
-    private IslandModel model;
-    private IslandView view;
-
-
-
-    public IslandController(IslandModel model, IslandView view) {
-        this.model = model;
-        this.view = view;
-
+    public IslandController(GameView view, IslandModel model) {
+        super(view, model);
     }
 
-    public IslandController(int x, int y, int width, int height, int speed, Image image){
+    public IslandController(int x, int y, int width, int height, int speed, Image image) {
         this(
-                new IslandModel(x,y,width,height,speed),
-                new IslandView(image)
+                new GameView(image),
+                new IslandModel(x,y,width,height,speed)
         );
-    }
-
-    public IslandModel getModel() {
-        return model;
-    }
-
-    public IslandView getView() {
-        return view;
     }
 
     public boolean isActive() {
@@ -70,12 +55,12 @@ public class IslandController {
         this.invulnerable = invulnerable;
     }
 
-    public void run(){
-        model.moveDown();
+    public void run() {
+        if (model instanceof IslandModel)
+            ((IslandModel)model).moveDown();
+        if (getModel().getY() > GameWindow.windowY + 10 || getModel().getX() > GameWindow.windowX + 10 || getModel().getX() < -10)
+            setActive(false);
     }
 
-    public void draw(Graphics graphic){
-        view.draw(graphic,model);
-    }
 }
 

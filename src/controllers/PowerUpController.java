@@ -1,49 +1,25 @@
 package controllers;
 
+import game.GameWindow;
 import models.PowerUpModel;
-import utils.Utils;
-import views.PowerUpView;
+import views.GameView;
 
 import java.awt.*;
 
-public class PowerUpController {
-    private boolean active = true;
+public class PowerUpController extends GameController{
     private int kill = 6;
     private boolean power = false;
     private int invulnerable = 300;
 
-    private PowerUpModel model;
-    private PowerUpView view;
-
-
-
-    public PowerUpController(PowerUpModel model, PowerUpView view) {
-        this.model = model;
-        this.view = view;
-
+    public PowerUpController(GameView view, PowerUpModel model) {
+        super(view, model);
     }
 
-    public PowerUpController(int x, int y, int width, int height, int speed, Image image){
+    public PowerUpController(int x, int y, int width, int height, int speed, Image image) {
         this(
-                new PowerUpModel(x,y,width,height,speed),
-                new PowerUpView(image)
+                new GameView(image),
+                new PowerUpModel(x,y,width,height,speed)
         );
-    }
-
-    public PowerUpModel getModel() {
-        return model;
-    }
-
-    public PowerUpView getView() {
-        return view;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public int getKill() {
@@ -71,10 +47,12 @@ public class PowerUpController {
     }
 
     public void run(){
-        model.moveDown();
+        if (model instanceof PowerUpModel){
+            ((PowerUpModel)model).moveDown();
+            if (getModel().getY() > GameWindow.windowY) {
+                setActive(false);
+            }
+        }
     }
 
-    public void draw(Graphics graphic){
-        view.draw(graphic,model);
-    }
 }

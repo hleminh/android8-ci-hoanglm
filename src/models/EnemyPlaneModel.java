@@ -1,58 +1,12 @@
 package models;
 
-public class EnemyPlaneModel {
-    private int x;
-    private int y;
-    private int width;
-    private int height;
-    private int speed;
+import controllers.PlayerPlaneController;
+
+public class EnemyPlaneModel extends GameModel {
+
 
     public EnemyPlaneModel(int x, int y, int width, int height, int speed) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.speed = speed;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public void setSpeed(int speed) {
-        this.speed = speed;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public int getSpeed() {
-        return speed;
+        super(x, y, width, height, speed);
     }
 
     public void moveUp(){
@@ -80,6 +34,22 @@ public class EnemyPlaneModel {
     public void moveLeftDown(){
         x -= (speed - 3);
         y += speed;
+    }
+
+    public void moveToPlayer(){
+        double dist = Math.sqrt(Math.pow(PlayerPlaneController.getPlayerY() - y,2.0) + Math.pow(x - PlayerPlaneController.getPlayerX(),2.0));
+        double tempX = speed * (x - PlayerPlaneController.getPlayerX())/dist;
+        double tempY = speed * (PlayerPlaneController.getPlayerY() - y)/dist;
+        x -= tempX;
+        y += tempY;
+    }
+
+    public void moveAwayFromPlayer(){
+        double dist = Math.sqrt(Math.pow(PlayerPlaneController.getPlayerY() - y,2.0) + Math.pow(x - PlayerPlaneController.getPlayerX(),2.0));
+        double tempX = speed * (x - PlayerPlaneController.getPlayerX())/dist;
+        double tempY = speed * (PlayerPlaneController.getPlayerY() - y)/dist;
+        x += tempX;
+        y += tempY;
     }
 
 }

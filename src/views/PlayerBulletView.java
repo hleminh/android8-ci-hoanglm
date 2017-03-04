@@ -4,23 +4,8 @@ import models.PlayerBulletModel;
 
 import java.awt.*;
 
-public class PlayerBulletView {
-    private Image image;
-
+public class PlayerBulletView extends GameView{
     public PlayerBulletView(Image image) {
-        this.image = image;
+        super(image);
     }
-
-    public Image getImage() {
-        return image;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
-    }
-
-    public void draw(Graphics graphic, PlayerBulletModel model){
-        graphic.drawImage(image,model.getX(),model.getY(),model.getWidth(),model.getHeight(),null);
-    }
-
 }

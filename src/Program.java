@@ -1,6 +1,4 @@
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import static com.sun.java.accessibility.util.AWTEventMonitor.addKeyListener;
+import game.GameWindow;
 
 public class Program {
     public static void main(String[] args){

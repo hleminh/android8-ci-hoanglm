@@ -1,42 +1,30 @@
 package controllers;
 
 import models.BackgroundModel;
+import models.GameModel;
 import utils.Utils;
 import views.BackgroundView;
+import views.GameView;
 
 import java.awt.*;
 
-public class BackgroundController {
+public class BackgroundController extends GameController {
     private boolean active = true;
     private int kill = 6;
     private boolean power = false;
     private int invulnerable = 300;
 
-    private BackgroundModel model;
-    private BackgroundView view;
-
-
-
-    public BackgroundController(BackgroundModel model, BackgroundView view) {
-        this.model = model;
-        this.view = view;
-
+    public BackgroundController(GameView view, BackgroundModel model) {
+        super(view, model);
     }
 
-    public BackgroundController(int x, int y,int width, int height, int speed, Image image){
+    public BackgroundController(int x, int y, int width, int height, int speed, Image image) {
         this(
-                new BackgroundModel(x,y,width,height,speed),
-                new BackgroundView(image)
+                new GameView(image),
+                new BackgroundModel(x,y,width,height,speed)
         );
     }
 
-    public BackgroundModel getModel() {
-        return model;
-    }
-
-    public BackgroundView getView() {
-        return view;
-    }
 
     public boolean isActive() {
         return active;
@@ -71,10 +59,8 @@ public class BackgroundController {
     }
 
     public void run(){
-        model.moveDown();
+        if (model instanceof BackgroundModel)
+            ((BackgroundModel)model).moveDown();
     }
 
-    public void draw(Graphics graphic){
-        view.draw(graphic,model);
-    }
 }

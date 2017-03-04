@@ -2,58 +2,25 @@ package controllers;
 
 import models.PlayerBulletModel;
 import utils.Utils;
-import views.PlayerBulletView;
+import views.GameView;
 
 import java.awt.*;
-import java.util.ArrayList;
 
-public class PlayerBulletController {
-
-    private PlayerBulletView view;
-
-    private PlayerBulletModel model;
-
-    private boolean active = true;
+public class PlayerBulletController extends GameController{
 
     private int moveType;
+    private int kill = 3;
 
-
-    public PlayerBulletController(PlayerBulletModel model, PlayerBulletView view) {
-        this.model = model;
-        this.view = view;
-
+    public PlayerBulletController(GameView view, PlayerBulletModel model) {
+        super(view, model);
     }
 
-    public PlayerBulletController(int x, int y, int width,int height, int speed, int moveType, Image image){
+    public PlayerBulletController(int x, int y, int width, int height, int speed, int moveType, Image image) {
         this(
-                new PlayerBulletModel(x,y,width,height,speed),
-                new PlayerBulletView(image)
+                new GameView(image),
+                new PlayerBulletModel(x,y,width,height,speed)
         );
         this.moveType = moveType;
-    }
-
-    public PlayerBulletModel getModel() {
-        return model;
-    }
-
-    public void setModel(PlayerBulletModel model) {
-        this.model = model;
-    }
-
-    public PlayerBulletView getView() {
-        return view;
-    }
-
-    public void setView(PlayerBulletView view) {
-        this.view = view;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public int getMoveType() {
@@ -64,21 +31,45 @@ public class PlayerBulletController {
         this.moveType = moveType;
     }
 
-    public void run(){
-        switch (moveType) {
-            case 0:
-                model.moveUp();
-                break;
-            case 1:
-                model.moveRightUp();
-                break;
-            case 2:
-                model.moveLeftUp();
-                break;
+    public int getKill() {
+        return kill;
+    }
+
+    public void setKill(int kill) {
+        this.kill = kill;
+    }
+
+    public void run() {
+        if (model instanceof PlayerBulletModel) {
+            if (isActive() == false){
+                switch (getKill()) {
+                    case 3:
+                        getModel().setHeight(31);
+                        getModel().setWidth(32);
+                        getView().setImage(Utils.loadImageFromRes("crosshair.png"));
+                        setKill(getKill() - 1);
+                        break;
+                    case 2:
+                        setKill(getKill() - 1);
+                        break;
+                    case 1:
+                        setKill(getKill() - 1);
+                        break;
+                }
+            }
+            if (getModel().getY() < 0) setActive(false);
+            switch (moveType) {
+                case 0:
+                    ((PlayerBulletModel)model).moveUp();
+                    break;
+                case 1:
+                    ((PlayerBulletModel)model).moveRightUp();
+                    break;
+                case 2:
+                    ((PlayerBulletModel)model).moveLeftUp();
+                    break;
+            }
         }
     }
 
-    public void draw(Graphics graphic){
-        view.draw(graphic,model);
-    }
 }
