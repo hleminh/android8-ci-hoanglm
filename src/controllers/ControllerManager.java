@@ -5,12 +5,12 @@ import java.util.Iterator;
 import java.util.Vector;
 
 public class ControllerManager {
-    private Vector<GameController> gameControllers = new Vector<GameController>();
-    private Vector<GameController> playerBulletControllers = new Vector<GameController>();
-    private Vector<GameController> enemyBulletControllers = new Vector<GameController>();
-    private Vector<GameController> islandControllers = new Vector<GameController>();
-    private Vector<GameController> backgroundControllers = new Vector<GameController>();
-    private Vector<GameController> collidables = new Vector<GameController>();
+    private static Vector<GameController> gameControllers = new Vector<GameController>();
+    private static Vector<GameController> playerBulletControllers = new Vector<GameController>();
+    private static Vector<GameController> enemyBulletControllers = new Vector<GameController>();
+    private static Vector<GameController> islandControllers = new Vector<GameController>();
+    private static Vector<GameController> backgroundControllers = new Vector<GameController>();
+    private static Vector<GameController> collidables = new Vector<GameController>();
 
     private int score;
 
@@ -44,6 +44,14 @@ public class ControllerManager {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public GameController getEnemy(){
+        for (GameController el: gameControllers){
+            if (el.isActive()==true && el instanceof EnemyPlaneController)
+                return el;
+        }
+        return null;
     }
 
     public synchronized void run() {
@@ -136,7 +144,8 @@ public class ControllerManager {
                                 el2.setActive(false);
                             }
                             if (el1 instanceof PlayerBulletController && el2 instanceof EnemyBulletController){
-                                el1.setActive(false);
+                                if (((PlayerBulletController) el1).isRocket()==false)
+                                    el1.setActive(false);
                                 el2.setActive(false);
                             }
                             if (el1 instanceof PlayerPlaneController && el2 instanceof EnemyPlaneController){

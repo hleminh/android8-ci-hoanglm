@@ -7,7 +7,6 @@ import views.GameView;
 
 import java.awt.*;
 import java.util.Random;
-import java.util.Vector;
 
 public class EnemyPlaneController extends GameController {
     private int kill = 6;
@@ -19,20 +18,18 @@ public class EnemyPlaneController extends GameController {
     private boolean isDank = false;
     private int bulletDelay = 20;
 
-    private Vector<GameController> bulletList;
-    private Vector<GameController> collidables;
+    private ControllerManager bulletList;
 
     public EnemyPlaneController(GameView view, EnemyPlaneModel model) {
         super(view, model);
     }
 
-    public EnemyPlaneController(int x, int y, int width, int height, int speed, Image image, Vector<GameController> enemyBulletControllers, Vector<GameController> collidables) {
+    public EnemyPlaneController(int x, int y, int width, int height, int speed, Image image, ControllerManager gameControllers) {
         this(
                 new GameView(image),
                 new EnemyPlaneModel(x, y, width, height, speed)
         );
-        this.bulletList = enemyBulletControllers;
-        this.collidables = collidables;
+        this.bulletList = gameControllers;
     }
 
 
@@ -92,12 +89,11 @@ public class EnemyPlaneController extends GameController {
         this.life = life;
     }
 
-    public Vector<GameController> getBulletList() {
+    public ControllerManager getBulletList() {
         return bulletList;
     }
 
-
-    public void setBulletList(Vector<GameController> bulletList) {
+    public void setBulletList(ControllerManager bulletList) {
         this.bulletList = bulletList;
     }
 
@@ -108,26 +104,26 @@ public class EnemyPlaneController extends GameController {
             if (bulletDelay == 0) {
                 if (isBoss() == false && isDank() == false) {
                     EnemyBulletController enemyBullet = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, getMoveType(), Utils.loadImageFromRes("bullet-round.png"));
-                    getBulletList().add(enemyBullet);
-                    collidables.add(enemyBullet);
+                    bulletList.getEnemyBulletControllers().add(enemyBullet);
+                    bulletList.getCollidables().add(enemyBullet);
                     bulletDelay = 30;
                 }
                 if (isBoss() == true) {
                     EnemyBulletController enemyBullet1 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 0, Utils.loadImageFromRes("bullet-round.png"));
                     EnemyBulletController enemyBullet2 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 1, Utils.loadImageFromRes("bullet-left.png"));
                     EnemyBulletController enemyBullet3 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 2, Utils.loadImageFromRes("bullet-right.png"));
-                    getBulletList().add(enemyBullet1);
-                    getBulletList().add(enemyBullet2);
-                    getBulletList().add(enemyBullet3);
-                    collidables.add(enemyBullet1);
-                    collidables.add(enemyBullet2);
-                    collidables.add(enemyBullet3);
+                    bulletList.getEnemyBulletControllers().add(enemyBullet1);
+                    bulletList.getCollidables().add(enemyBullet1);
+                    bulletList.getEnemyBulletControllers().add(enemyBullet2);
+                    bulletList.getCollidables().add(enemyBullet2);
+                    bulletList.getEnemyBulletControllers().add(enemyBullet3);
+                    bulletList.getCollidables().add(enemyBullet3);
                     bulletDelay = 30;
                 }
                 if (isDank() == true) {
                     EnemyBulletController enemyBullet = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 32, 31, GameWindow.ENEMY_BULLET_SPEED, 3, Utils.loadImageFromRes("dank.png"));
-                    getBulletList().add(enemyBullet);
-                    collidables.add(enemyBullet);
+                    bulletList.getEnemyBulletControllers().add(enemyBullet);
+                    bulletList.getCollidables().add(enemyBullet);
                     bulletDelay = 70;
                 }
             }

@@ -107,7 +107,7 @@ public class GameWindow extends Frame {
         repaint();
 
         // 3: Initialize player plane
-        playerPlaneController = new PlayerPlaneController(planeX,planeY,planeWidth,planeHeight,SPEED,Utils.loadImageFromRes("plane3.png"),gameControllers.getPlayerBulletControllers(),gameControllers.getCollidables());
+        playerPlaneController = new PlayerPlaneController(planeX,planeY,planeWidth,planeHeight,SPEED,Utils.loadImageFromRes("plane3.png"),gameControllers);
         gameControllers.getGameControllers().add(playerPlaneController);
         gameControllers.getCollidables().add(playerPlaneController);
 
@@ -157,6 +157,10 @@ public class GameWindow extends Frame {
                            playerPlaneController.setSpace(true);
                     }
                     break;
+                    case KeyEvent.VK_CONTROL: {
+                        playerPlaneController.setControl(true);
+                    }
+                    break;
                 }
             }
 
@@ -181,6 +185,10 @@ public class GameWindow extends Frame {
                     }
                     case KeyEvent.VK_SPACE: {
                         playerPlaneController.setSpace(false);
+                    }
+                    break;
+                    case KeyEvent.VK_CONTROL: {
+                        playerPlaneController.setControl(false);
                     }
                     break;
                 }
@@ -216,7 +224,7 @@ public class GameWindow extends Frame {
 
                         if (clockBoss == 900 && bossActive == false){
                             Random randomX = new Random();
-                            EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42),0,60,41,ENEMY_SPEED,Utils.loadImageFromRes("plane1.png"),gameControllers.getEnemyBulletControllers(),gameControllers.getCollidables());
+                            EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42),0,60,41,ENEMY_SPEED,Utils.loadImageFromRes("plane1.png"),gameControllers);
                             enemyPlaneController.setBoss(true);
                             enemyPlaneController.setMoveType(0);
                             bossActive = true;
@@ -229,7 +237,7 @@ public class GameWindow extends Frame {
 
                         if (clockDank == 500){
                             Random randomX = new Random();
-                            EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42),0,40,40,ENEMY_SPEED,Utils.loadImageFromRes("unnamed.png"),gameControllers.getEnemyBulletControllers(),gameControllers.getCollidables());
+                            EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42),0,40,40,ENEMY_SPEED,Utils.loadImageFromRes("unnamed.png"),gameControllers);
                             enemyPlaneController.setDank(true);
                             enemyPlaneController.setMoveType(4);
                             enemyPlaneController.setLife(1);
@@ -246,7 +254,7 @@ public class GameWindow extends Frame {
 
                             switch (type) {
                                 case 0: {
-                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy_plane_white_3.png"), gameControllers.getEnemyBulletControllers(), gameControllers.getCollidables());
+                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy_plane_white_3.png"), gameControllers);
                                     if (enemyPlaneController.getModel().getX() == 0)
                                         enemyPlaneController.getModel().setX(5);
                                     if (enemyPlaneController.getModel().getX() <= 100)
@@ -271,7 +279,7 @@ public class GameWindow extends Frame {
                                     break;
                                 }
                                 case 1: {
-                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy_plane_yellow_3.png"),gameControllers.getEnemyBulletControllers(),gameControllers.getCollidables());
+                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy_plane_yellow_3.png"),gameControllers);
                                     if (enemyPlaneController.getModel().getX() == 0)
                                         enemyPlaneController.getModel().setX(5);
                                     if (enemyPlaneController.getModel().getX() <= 100)
@@ -296,7 +304,7 @@ public class GameWindow extends Frame {
                                     break;
                                 }
                                 case 2: {
-                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy-green-3.png"),gameControllers.getEnemyBulletControllers(),gameControllers.getCollidables());
+                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy-green-3.png"),gameControllers);
                                     if (enemyPlaneController.getModel().getX() == 0)
                                         enemyPlaneController.getModel().setX(5);
                                     if (enemyPlaneController.getModel().getX() <= 100)

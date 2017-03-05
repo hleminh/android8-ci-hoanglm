@@ -10,6 +10,8 @@ public class PlayerBulletController extends GameController{
 
     private int moveType;
     private int kill = 3;
+    private GameController enemy;
+    private boolean isRocket = false;
 
     public PlayerBulletController(GameView view, PlayerBulletModel model) {
         super(view, model);
@@ -21,6 +23,22 @@ public class PlayerBulletController extends GameController{
                 new PlayerBulletModel(x,y,width,height,speed)
         );
         this.moveType = moveType;
+    }
+
+    public boolean isRocket() {
+        return isRocket;
+    }
+
+    public void setRocket(boolean rocket) {
+        isRocket = rocket;
+    }
+
+    public GameController getEnemy() {
+        return enemy;
+    }
+
+    public void setEnemy(GameController enemy) {
+        this.enemy = enemy;
     }
 
     public int getMoveType() {
@@ -68,8 +86,10 @@ public class PlayerBulletController extends GameController{
                 case 2:
                     ((PlayerBulletModel)model).moveLeftUp();
                     break;
+                case 3:
+                    ((PlayerBulletModel)model).moveToEnemy(enemy);
+                    break;
             }
         }
     }
-
 }

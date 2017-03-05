@@ -6,7 +6,6 @@ import utils.Utils;
 import views.GameView;
 
 import java.awt.*;
-import java.util.Vector;
 
 public class PlayerPlaneController extends GameController {
     private int kill = 6;
@@ -17,25 +16,24 @@ public class PlayerPlaneController extends GameController {
     private boolean up = false;
     private boolean down = false;
     private boolean space = false;
+    private boolean control = false;
     private int bulletDelay = 5;
+    private int rocketDelay = 10;
     private static int playerX;
     private static int playerY;
 
-
-    private Vector<GameController> bulletList;
-    private Vector<GameController> collidables;
+    private ControllerManager bulletList;
 
     public PlayerPlaneController(GameView view, PlayerPlaneModel model) {
         super(view, model);
     }
 
-    public PlayerPlaneController(int x, int y, int width, int height, int speed, Image image, Vector<GameController> playerBulletControllers, Vector<GameController> collidables) {
+    public PlayerPlaneController(int x, int y, int width, int height, int speed, Image image, ControllerManager gameControllers) {
         this(
                 new GameView(image),
                 new PlayerPlaneModel(x, y, width, height, speed)
         );
-        this.bulletList = playerBulletControllers;
-        this.collidables = collidables;
+        this.bulletList = gameControllers;
     }
 
     public boolean isRight() {
@@ -86,13 +84,14 @@ public class PlayerPlaneController extends GameController {
         this.bulletDelay = bulletDelay;
     }
 
-    public void setBulletList(Vector<GameController> bulletList) {
-        this.bulletList = bulletList;
+    public ControllerManager getBulletList() {
+        return bulletList;
     }
 
     public void run() {
         if (model instanceof PlayerPlaneModel) {
             if (bulletDelay > 0) bulletDelay--;
+            if (rocketDelay > 0) rocketDelay--;
             if (right == true && (getModel().getX() + getModel().getSpeed() <= GameWindow.windowX - getModel().getWidth() - 3 && super.isActive() == true))
                 model.setX(model.getX() + model.getSpeed());
             if (left == true && (getModel().getX() - getModel().getSpeed() >= 3 && super.isActive() == true))
@@ -165,26 +164,42 @@ public class PlayerPlaneController extends GameController {
             if (space == true) {
                 if (isPower() == false && bulletDelay == 0) {
                     PlayerBulletController playerBulletController = new PlayerBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() - 7, 10, 30, GameWindow.BULLET_SPEED, 0, Utils.loadImageFromRes("bullet.png"));
-                    getBulletList().add(playerBulletController);
-                    collidables.add(playerBulletController);
+                    bulletList.getPlayerBulletControllers().add(playerBulletController);
+                    bulletList.getCollidables().add(playerBulletController);
                     bulletDelay = 5;
                 }
                 if (isPower() == true && bulletDelay == 0) {
                     PlayerBulletController playerBulletController1 = new PlayerBulletController(getModel().getX() + (getModel().getWidth() - 10) / 2, getModel().getY() - 10, 10, 30, GameWindow.BULLET_SPEED, 0, Utils.loadImageFromRes("bullet.png"));
                     PlayerBulletController playerBulletController2 = new PlayerBulletController(getModel().getX() + (getModel().getWidth() - 30) / 2, getModel().getY() - 10, 30, 30, GameWindow.BULLET_SPEED, 1, Utils.loadImageFromRes("bulletright.png"));
                     PlayerBulletController playerBulletController3 = new PlayerBulletController(getModel().getX() + (getModel().getWidth() - 30) / 2, getModel().getY() - 10, 30, 30, GameWindow.BULLET_SPEED, 2, Utils.loadImageFromRes("bulletleft.png"));
-                    getBulletList().add(playerBulletController1);
-                    getBulletList().add(playerBulletController2);
-                    getBulletList().add(playerBulletController3);
-                    collidables.add(playerBulletController1);
-                    collidables.add(playerBulletController2);
-                    collidables.add(playerBulletController3);
+                    bulletList.getPlayerBulletControllers().add(playerBulletController1);
+                    bulletList.getCollidables().add(playerBulletController1);
+                    bulletList.getPlayerBulletControllers().add(playerBulletController2);
+                    bulletList.getCollidables().add(playerBulletController2);
+                    bulletList.getPlayerBulletControllers().add(playerBulletController3);
+                    bulletList.getCollidables().add(playerBulletController3);
                     bulletDelay = 5;
                 }
+            }
+            if (control == true && rocketDelay == 0){
+                PlayerBulletController playerBulletController = new PlayerBulletController(getModel().getX() + (getModel().getWidth() - 10) / 2, getModel().getY() - 10, 14, 61, GameWindow.BULLET_SPEED, 3, Utils.loadImageFromRes("rocket.png"));
+                playerBulletController.setEnemy(bulletList.getEnemy());
+                playerBulletController.setRocket(true);
+                bulletList.getPlayerBulletControllers().add(playerBulletController);
+                bulletList.getCollidables().add(playerBulletController);
+                rocketDelay = 10;
             }
             playerX = model.getX();
             playerY = model.getY();
         }
+    }
+
+    public boolean isControl() {
+        return control;
+    }
+
+    public void setControl(boolean control) {
+        this.control = control;
     }
 
     public static int getPlayerX() {
@@ -205,10 +220,6 @@ public class PlayerPlaneController extends GameController {
 
     public int getInvulnerable() {
         return invulnerable;
-    }
-
-    public Vector<GameController> getBulletList() {
-        return bulletList;
     }
 
     public void setKill(int kill) {
