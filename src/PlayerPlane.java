@@ -14,7 +14,8 @@ public class PlayerPlane {
     private boolean power = false;
     private int invulnerable = 300;
     ArrayList<PlayerBullet> bulletList = new ArrayList<PlayerBullet>();
-    public PlayerPlane(int a, int b, int c, int d, int f, Image g ){
+
+    public PlayerPlane(int a, int b, int c, int d, int f, Image g) {
         x = a;
         y = b;
         width = c;
@@ -22,22 +23,27 @@ public class PlayerPlane {
         speed = f;
         image = g;
     }
-    void moveUp(){
+
+    void moveUp() {
 
         y -= speed;
     }
-    void moveDown(){
+
+    void moveDown() {
 
         y += speed;
     }
-    void moveRight(){
+
+    void moveRight() {
 
         x += speed;
     }
-    void moveLeft(){
+
+    void moveLeft() {
 
         x -= speed;
     }
+
     public int getX() {
         return x;
     }
@@ -54,13 +60,14 @@ public class PlayerPlane {
         return height;
     }
 
-    public Image getImage(){
+    public Image getImage() {
         return image;
     }
 
     public ArrayList<PlayerBullet> getBulletList() {
         return bulletList;
     }
+
     public int getSpeed() {
         return speed;
     }
@@ -128,7 +135,8 @@ public class PlayerPlane {
     public int getInvulnerable() {
         return invulnerable;
     }
-    public void draw(Graphics graphic){
-        graphic.drawImage(image,x,y,width,height,null);
+
+    public void draw(Graphics graphic) {
+        graphic.drawImage(image, x, y, width, height, null);
     }
 }

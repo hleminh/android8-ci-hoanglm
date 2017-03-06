@@ -6,7 +6,7 @@ import views.GameView;
 
 import java.awt.*;
 
-public class PowerUpController extends GameController{
+public class PowerUpController extends GameController {
     private int kill = 6;
     private boolean power = false;
     private int invulnerable = 300;
@@ -18,7 +18,7 @@ public class PowerUpController extends GameController{
     public PowerUpController(int x, int y, int width, int height, int speed, Image image) {
         this(
                 new GameView(image),
-                new PowerUpModel(x,y,width,height,speed)
+                new PowerUpModel(x, y, width, height, speed)
         );
     }
 
@@ -46,9 +46,9 @@ public class PowerUpController extends GameController{
         this.invulnerable = invulnerable;
     }
 
-    public void run(){
-        if (model instanceof PowerUpModel){
-            ((PowerUpModel)model).moveDown();
+    public void run() {
+        if (model instanceof PowerUpModel) {
+            ((PowerUpModel) model).moveDown();
             if (getModel().getY() > GameWindow.windowY) {
                 setActive(false);
             }

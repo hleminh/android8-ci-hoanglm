@@ -181,7 +181,7 @@ public class PlayerPlaneController extends GameController {
                     bulletDelay = 5;
                 }
             }
-            if (control == true && rocketDelay == 0){
+            if (control == true && rocketDelay == 0) {
                 PlayerBulletController playerBulletController = new PlayerBulletController(getModel().getX() + (getModel().getWidth() - 10) / 2, getModel().getY() - 10, 14, 61, GameWindow.BULLET_SPEED, 3, Utils.loadImageFromRes("rocket.png"));
                 playerBulletController.setEnemy(bulletList.getEnemy());
                 playerBulletController.setRocket(true);
@@ -191,6 +191,32 @@ public class PlayerPlaneController extends GameController {
             }
             playerX = model.getX();
             playerY = model.getY();
+        }
+    }
+
+    public void onContact(GameController other) {
+        if (other instanceof EnemyBulletController) {
+            if (isPower() == false)
+                setActive(false);
+            other.setActive(false);
+        }
+        if (other instanceof PowerUpController) {
+            setPower(true);
+            other.setActive(false);
+        }
+        if (other instanceof EnemyPlaneController) {
+            if (isPower() == false)
+                setActive(false);
+            if (((EnemyPlaneController) other).isBoss() == false) {
+                other.setActive(false);
+                ((EnemyPlaneController) other).setLife(0);
+            } else {
+                ((EnemyPlaneController) other).setLife(((EnemyPlaneController) other).getLife() - 1);
+            }
+        }
+        if (other instanceof BombController) {
+            setActive(false);
+            other.setActive(false);
         }
     }
 

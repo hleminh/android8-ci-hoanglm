@@ -8,7 +8,8 @@ public class Island {
     private int height;
     private int speed;
     private boolean active = true;
-    public Island(int a, int b, int c, int d, int f, Image g ){
+
+    public Island(int a, int b, int c, int d, int f, Image g) {
         x = a;
         y = b;
         width = c;
@@ -73,19 +74,22 @@ public class Island {
         this.active = active;
     }
 
-    void moveUp(){
+    void moveUp() {
 
         y -= speed;
     }
-    void moveDown(){
+
+    void moveDown() {
 
         y += speed;
     }
-    void moveRight(){
+
+    void moveRight() {
 
         x += speed;
     }
-    void moveLeft(){
+
+    void moveLeft() {
 
         x -= speed;
     }

@@ -7,7 +7,7 @@ import views.GameView;
 
 import java.awt.*;
 
-public class EnemyBulletController extends GameController{
+public class EnemyBulletController extends GameController {
     private int moveType;
 
     private int kill = 3;
@@ -19,7 +19,7 @@ public class EnemyBulletController extends GameController{
     public EnemyBulletController(int x, int y, int width, int height, int speed, int moveType, Image image) {
         this(
                 new GameView(image),
-                new EnemyBulletModel(x,y,width,height,speed)
+                new EnemyBulletModel(x, y, width, height, speed)
         );
         this.moveType = moveType;
     }
@@ -44,7 +44,7 @@ public class EnemyBulletController extends GameController{
         if (model instanceof EnemyBulletModel) {
             if (getModel().getY() > GameWindow.windowY + 10 || getModel().getX() > GameWindow.windowX + 10 || getModel().getX() < -10)
                 setActive(false);
-            if (isActive() == false){
+            if (isActive() == false) {
                 switch (getKill()) {
                     case 3:
                         getModel().setWidth(32);

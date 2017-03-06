@@ -57,9 +57,8 @@ public class GameModel {
         this.speed = speed;
     }
 
-    public double getMidX()
-    {
-        return x+width/2.0;
+    public double getMidX() {
+        return x + width / 2.0;
     }
 
     public Rectangle getRect() {

@@ -15,11 +15,11 @@ public class GameView {
         this.image = image;
     }
 
-    public  GameView(Image image) {
+    public GameView(Image image) {
         this.image = image;
     }
 
-    public void draw(Graphics graphic,  GameModel model){
-        graphic.drawImage(image,model.getX(),model.getY(),model.getWidth(),model.getHeight(),null);
+    public void draw(Graphics graphic, GameModel model) {
+        graphic.drawImage(image, model.getX(), model.getY(), model.getWidth(), model.getHeight(), null);
     }
 }

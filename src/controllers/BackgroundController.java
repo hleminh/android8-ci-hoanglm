@@ -1,9 +1,6 @@
 package controllers;
 
 import models.BackgroundModel;
-import models.GameModel;
-import utils.Utils;
-import views.BackgroundView;
 import views.GameView;
 
 import java.awt.*;
@@ -21,7 +18,7 @@ public class BackgroundController extends GameController {
     public BackgroundController(int x, int y, int width, int height, int speed, Image image) {
         this(
                 new GameView(image),
-                new BackgroundModel(x,y,width,height,speed)
+                new BackgroundModel(x, y, width, height, speed)
         );
     }
 
@@ -58,9 +55,9 @@ public class BackgroundController extends GameController {
         this.invulnerable = invulnerable;
     }
 
-    public void run(){
+    public void run() {
         if (model instanceof BackgroundModel)
-            ((BackgroundModel)model).moveDown();
+            ((BackgroundModel) model).moveDown();
     }
 
 }

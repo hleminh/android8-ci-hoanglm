@@ -47,6 +47,16 @@ public class BombController extends GameController{
         this.invulnerable = invulnerable;
     }
 
+    public void onContact(GameController other){
+        if (other instanceof EnemyPlaneController){
+            setActive(false);
+            if (((EnemyPlaneController) other).isBoss() == false) {
+                other.setActive(false);
+                ((EnemyPlaneController) other).setLife(0);
+            }
+        }
+    }
+
     public void run() {
         if (model instanceof BombModel) {
             ((BombModel) model).moveDown();

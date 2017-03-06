@@ -7,7 +7,8 @@ public class Background {
     private int width;
     private int height;
     private int speed;
-    public Background(int a, int b, int c, int d, int f, Image g ){
+
+    public Background(int a, int b, int c, int d, int f, Image g) {
         x = a;
         y = b;
         width = c;
@@ -15,6 +16,7 @@ public class Background {
         speed = f;
         image = g;
     }
+
     public Image getImage() {
         return image;
     }

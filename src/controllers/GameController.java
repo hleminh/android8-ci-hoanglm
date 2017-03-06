@@ -48,6 +48,10 @@ public class GameController {
     public void run() {
     }
 
+    public void onContact(GameController other) {
+
+    }
+
     public void draw(Graphics graphic) {
         view.draw(graphic, model);
     }

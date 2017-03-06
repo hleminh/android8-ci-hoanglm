@@ -9,7 +9,8 @@ public class Bomb {
     private int speed;
     private boolean active = true;
     private int kill = 6;
-    public Bomb(int a, int b, int c, int d, int f, Image g ){
+
+    public Bomb(int a, int b, int c, int d, int f, Image g) {
         x = a;
         y = b;
         width = c;
@@ -81,19 +82,23 @@ public class Bomb {
     public void setKill(int kill) {
         this.kill = kill;
     }
-    void moveUp(){
+
+    void moveUp() {
 
         y -= speed;
     }
-    void moveDown(){
+
+    void moveDown() {
 
         y += speed;
     }
-    void moveRight(){
+
+    void moveRight() {
 
         x += speed;
     }
-    void moveLeft(){
+
+    void moveLeft() {
 
         x -= speed;
     }

@@ -96,18 +96,18 @@ public class GameWindow extends Frame {
         });
 
         // 1: Load image
-        background = new BackgroundController(0,0,windowX,windowY,BACKGROUND_SPEED, Utils.loadImageFromRes("background.png"));
+        background = new BackgroundController(0, 0, windowX, windowY, BACKGROUND_SPEED, Utils.loadImageFromRes("background.png"));
         gameControllers.getBackgroundControllers().add(background);
-        backgroundBuffer = new BackgroundController(0,-600,windowX,windowY,BACKGROUND_SPEED,Utils.loadImageFromRes("background.png"));
+        backgroundBuffer = new BackgroundController(0, -600, windowX, windowY, BACKGROUND_SPEED, Utils.loadImageFromRes("background.png"));
         gameControllers.getBackgroundControllers().add(backgroundBuffer);
-        paused = new BackgroundController(0,0,windowX,windowY,BACKGROUND_SPEED,Utils.loadImageFromRes("paused.png"));
-        wasted = new BackgroundController(0,0,windowX,windowY,BACKGROUND_SPEED,Utils.loadImageFromRes("wasted.png"));
+        paused = new BackgroundController(0, 0, windowX, windowY, BACKGROUND_SPEED, Utils.loadImageFromRes("paused.png"));
+        wasted = new BackgroundController(0, 0, windowX, windowY, BACKGROUND_SPEED, Utils.loadImageFromRes("wasted.png"));
 
         // 2: Draw image
         repaint();
 
         // 3: Initialize player plane
-        playerPlaneController = new PlayerPlaneController(planeX,planeY,planeWidth,planeHeight,SPEED,Utils.loadImageFromRes("plane3.png"),gameControllers);
+        playerPlaneController = new PlayerPlaneController(planeX, planeY, planeWidth, planeHeight, SPEED, Utils.loadImageFromRes("plane3.png"), gameControllers);
         gameControllers.getGameControllers().add(playerPlaneController);
         gameControllers.getCollidables().add(playerPlaneController);
 
@@ -133,28 +133,28 @@ public class GameWindow extends Frame {
                     }
                     break;
                     case KeyEvent.VK_UP: {
-                       if (playerPlaneController.getModel().getY() - playerPlaneController.getModel().getSpeed() >= playerPlaneController.getModel().getHeight()/2 && active == true)
-                           playerPlaneController.setUp(true);
+                        if (playerPlaneController.getModel().getY() - playerPlaneController.getModel().getSpeed() >= playerPlaneController.getModel().getHeight() / 2 && active == true)
+                            playerPlaneController.setUp(true);
                     }
                     break;
                     case KeyEvent.VK_DOWN: {
-                        if (playerPlaneController.getModel().getY()+ playerPlaneController.getModel().getSpeed() <= background.getModel().getHeight() - playerPlaneController.getModel().getHeight() - 5 && active == true)
+                        if (playerPlaneController.getModel().getY() + playerPlaneController.getModel().getSpeed() <= background.getModel().getHeight() - playerPlaneController.getModel().getHeight() - 5 && active == true)
                             playerPlaneController.setDown(true);
                     }
                     break;
                     case KeyEvent.VK_ENTER: {
-                        if (active == true){
+                        if (active == true) {
                             active = false;
                             System.out.println("Paused");
-                        }
-                        else{
+                        } else {
                             active = true;
                             System.out.println("Unpaused");
                         }
-                    }break;
+                    }
+                    break;
                     case KeyEvent.VK_SPACE: {
                         if (active == true)
-                           playerPlaneController.setSpace(true);
+                            playerPlaneController.setSpace(true);
                     }
                     break;
                     case KeyEvent.VK_CONTROL: {
@@ -199,13 +199,13 @@ public class GameWindow extends Frame {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true){
+                while (true) {
                     try {
                         Thread.sleep(17);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if(active == true) {
+                    if (active == true) {
 
                         //Generate stuffs
 
@@ -222,9 +222,9 @@ public class GameWindow extends Frame {
                         clockDank = clockDank + 1;
 
 
-                        if (clockBoss == 900 && bossActive == false){
+                        if (clockBoss == 900 && bossActive == false) {
                             Random randomX = new Random();
-                            EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42),0,60,41,ENEMY_SPEED,Utils.loadImageFromRes("plane1.png"),gameControllers);
+                            EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42), 0, 60, 41, ENEMY_SPEED, Utils.loadImageFromRes("plane1.png"), gameControllers);
                             enemyPlaneController.setBoss(true);
                             enemyPlaneController.setMoveType(0);
                             bossActive = true;
@@ -235,9 +235,9 @@ public class GameWindow extends Frame {
                             clockEnemy = 0;
                         }
 
-                        if (clockDank == 500){
+                        if (clockDank == 500) {
                             Random randomX = new Random();
-                            EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42),0,40,40,ENEMY_SPEED,Utils.loadImageFromRes("unnamed.png"),gameControllers);
+                            EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42), 0, 40, 40, ENEMY_SPEED, Utils.loadImageFromRes("unnamed.png"), gameControllers);
                             enemyPlaneController.setDank(true);
                             enemyPlaneController.setMoveType(4);
                             enemyPlaneController.setLife(1);
@@ -279,7 +279,7 @@ public class GameWindow extends Frame {
                                     break;
                                 }
                                 case 1: {
-                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy_plane_yellow_3.png"),gameControllers);
+                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy_plane_yellow_3.png"), gameControllers);
                                     if (enemyPlaneController.getModel().getX() == 0)
                                         enemyPlaneController.getModel().setX(5);
                                     if (enemyPlaneController.getModel().getX() <= 100)
@@ -304,7 +304,7 @@ public class GameWindow extends Frame {
                                     break;
                                 }
                                 case 2: {
-                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy-green-3.png"),gameControllers);
+                                    EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth()), 0, 32, 32, ENEMY_SPEED, Utils.loadImageFromRes("enemy-green-3.png"), gameControllers);
                                     if (enemyPlaneController.getModel().getX() == 0)
                                         enemyPlaneController.getModel().setX(5);
                                     if (enemyPlaneController.getModel().getX() <= 100)
@@ -377,7 +377,7 @@ public class GameWindow extends Frame {
                             background.getModel().setY(0);
                         }
 
-                        if (playerPlaneController.isActive() == false){
+                        if (playerPlaneController.isActive() == false) {
                             background.getView().setImage(Utils.loadImageFromRes("gameover.png"));
                             backgroundBuffer.getView().setImage(Utils.loadImageFromRes("gameover.png"));
                         }
@@ -435,8 +435,8 @@ public class GameWindow extends Frame {
 
     }
 
-    public void start(){
-            thread.start();
+    public void start() {
+        thread.start();
     }
 
 
@@ -447,12 +447,12 @@ public class GameWindow extends Frame {
 
             gameControllers.draw(backGraphics);
 
-            if (active == false){
-                paused.getView().draw(backGraphics,paused.getModel());
+            if (active == false) {
+                paused.getView().draw(backGraphics, paused.getModel());
             }
 
-            if (playerPlaneController.isActive() == false){
-                wasted.getView().draw(backGraphics,wasted.getModel());
+            if (playerPlaneController.isActive() == false) {
+                wasted.getView().draw(backGraphics, wasted.getModel());
             }
 
             g.drawImage(backBufferImage, 0, 0, null);
