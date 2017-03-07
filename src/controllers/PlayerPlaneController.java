@@ -17,8 +17,10 @@ public class PlayerPlaneController extends GameController {
     private boolean down = false;
     private boolean space = false;
     private boolean control = false;
+    private boolean shift = false;
     private int bulletDelay = 5;
     private int rocketDelay = 10;
+    private int nuclearDelay = 100;
     private static int playerX;
     private static int playerY;
 
@@ -88,10 +90,19 @@ public class PlayerPlaneController extends GameController {
         return bulletList;
     }
 
+    public boolean isShift() {
+        return shift;
+    }
+
+    public void setShift(boolean shift) {
+        this.shift = shift;
+    }
+
     public void run() {
         if (model instanceof PlayerPlaneModel) {
             if (bulletDelay > 0) bulletDelay--;
             if (rocketDelay > 0) rocketDelay--;
+            if (nuclearDelay > 0) nuclearDelay--;
             if (right == true && (getModel().getX() + getModel().getSpeed() <= GameWindow.windowX - getModel().getWidth() - 3 && super.isActive() == true))
                 model.setX(model.getX() + model.getSpeed());
             if (left == true && (getModel().getX() - getModel().getSpeed() >= 3 && super.isActive() == true))
@@ -182,12 +193,20 @@ public class PlayerPlaneController extends GameController {
                 }
             }
             if (control == true && rocketDelay == 0) {
-                PlayerBulletController playerBulletController = new PlayerBulletController(getModel().getX() + (getModel().getWidth() - 10) / 2, getModel().getY() - 10, 14, 61, GameWindow.BULLET_SPEED, 3, Utils.loadImageFromRes("rocket.png"));
+                PlayerBulletController playerBulletController = new PlayerBulletController(getModel().getX() + (getModel().getWidth() - 14) / 2, getModel().getY() - 10, 14, 61, GameWindow.BULLET_SPEED, 3, Utils.loadImageFromRes("rocket.png"));
                 playerBulletController.setEnemy(bulletList.getEnemy());
                 playerBulletController.setRocket(true);
                 bulletList.getPlayerBulletControllers().add(playerBulletController);
                 bulletList.getCollidables().add(playerBulletController);
                 rocketDelay = 10;
+            }
+            if (shift == true && nuclearDelay == 0) {
+                PlayerBulletController playerBulletController = new PlayerBulletController(getModel().getX() + (getModel().getWidth() - 32) / 2, getModel().getY() - 10, 32, 64, GameWindow.BULLET_SPEED - 5, 3, Utils.loadImageFromRes("nuclear.png"));
+                playerBulletController.setNuclear(true);
+                playerBulletController.setKill(14);
+                bulletList.getPlayerBulletControllers().add(playerBulletController);
+                bulletList.getCollidables().add(playerBulletController);
+                nuclearDelay = 100;
             }
             playerX = model.getX();
             playerY = model.getY();

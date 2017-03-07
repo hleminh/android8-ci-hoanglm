@@ -79,7 +79,7 @@ public class GameWindow extends Frame {
         gameControllers = new ControllerManager();
         setVisible(true);
         setSize(windowX, windowY);
-        System.out.println("RULES:\n - Shoot down enemy's airplanes and bomb.\n - Avoid enemy's bullets and bomb.\n - Collect power-ups to be invunerable for a short period of time and shoots stronger bullets.\n - Each diagonally moving airplane rewards 1pt since they're easier to shoot.\n - Each straightly moving airplane rewards 2pt since they're harder to shoot.\n - Each bomb rewards 1pt.\n - Each boss rewards 10pt.\n Good luck!\nCONTROLS:\n - ARROW KEYS to move.\n - SPACE to shoot.\n - CTRL to shoot rockets.\n - ENTER to pause.\nGAME LOGS:");
+        System.out.println("RULES:\n - Shoot down enemy's airplanes and bomb.\n - Avoid enemy's bullets and bomb.\n - Collect power-ups to be invunerable for a short period of time and shoots stronger bullets.\n - Each diagonally moving airplane rewards 1pt since they're easier to shoot.\n - Each straightly moving airplane rewards 2pt since they're harder to shoot.\n - Each bomb rewards 1pt.\n - Each boss rewards 10pt.\n Good luck!\nCONTROLS:\n - ARROW KEYS to move.\n - SPACE to shoot.\n - CTRL to shoot rockets.\n - SHIFT to drop nuclear bombs (You have to shoot the bomb to trigger it).\n - ENTER to pause.\nGAME LOGS:");
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -161,6 +161,10 @@ public class GameWindow extends Frame {
                         playerPlaneController.setControl(true);
                     }
                     break;
+                    case KeyEvent.VK_SHIFT: {
+                        playerPlaneController.setShift(true);
+                    }
+                    break;
                 }
             }
 
@@ -189,6 +193,10 @@ public class GameWindow extends Frame {
                     break;
                     case KeyEvent.VK_CONTROL: {
                         playerPlaneController.setControl(false);
+                    }
+                    break;
+                    case KeyEvent.VK_SHIFT: {
+                        playerPlaneController.setShift(false);
                     }
                     break;
                 }
