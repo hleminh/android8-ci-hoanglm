@@ -59,16 +59,6 @@ public class GameWindow extends Frame {
     private BackgroundController paused;
     private BackgroundController wasted;
 
-    //private Vector<EnemyPlaneController> enemyPlaneControllers = new Vector<EnemyPlaneController>();
-
-    //private Vector<IslandController> isLands = new Vector<IslandController>();
-
-    //private Vector<BombController> Bombs = new Vector<BombController>();
-
-    //private Vector<PowerUpController> powerUps = new Vector<PowerUpController>();
-
-    //private Vector<EnemyBulletController> enemyBulletStray = new Vector<EnemyBulletController>();
-
     private PlayerPlaneController playerPlaneController;
 
     private ControllerManager gameControllers;

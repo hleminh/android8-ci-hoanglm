@@ -77,7 +77,8 @@ public class PlayerBulletController extends GameController {
 
     public void onContact(GameController other) {
         if (other instanceof EnemyPlaneController) {
-            setActive(false);
+            if (isNuclear() == false)
+                setActive(false);
             if (((EnemyPlaneController) other).isBoss() == false) {
                 ((EnemyPlaneController) other).setLife(0);
                 other.setActive(false);
@@ -107,7 +108,7 @@ public class PlayerBulletController extends GameController {
             if (((PlayerBulletController) other).isNuclear() == true){
                 setActive(false);
                 if (((PlayerBulletController) other).isTriggered()==false)
-                ((PlayerBulletController) other).setTriggered(true);
+                    ((PlayerBulletController) other).setTriggered(true);
             }
         }
     }

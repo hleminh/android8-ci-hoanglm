@@ -2,6 +2,7 @@ package controllers;
 
 import game.GameWindow;
 import models.EnemyPlaneModel;
+import strategies.*;
 import utils.Utils;
 import views.GameView;
 
@@ -17,7 +18,7 @@ public class EnemyPlaneController extends GameController {
     private boolean isBoss = false;
     private boolean isDank = false;
     private int bulletDelay = 20;
-
+    private MoveBehavior moveBehavior;
     private ControllerManager bulletList;
 
     public EnemyPlaneController(GameView view, EnemyPlaneModel model) {
@@ -32,6 +33,9 @@ public class EnemyPlaneController extends GameController {
         this.bulletList = gameControllers;
     }
 
+    public void setMoveBehavior(MoveBehavior moveBehavior) {
+        this.moveBehavior = moveBehavior;
+    }
 
     public boolean isDank() {
         return isDank;
@@ -129,16 +133,20 @@ public class EnemyPlaneController extends GameController {
             }
             switch (moveType) {
                 case 0:
-                    ((EnemyPlaneModel) model).moveDown();
+                    setMoveBehavior(new MoveDownBehavior());
+                    moveBehavior.move(this.model);
                     break;
                 case 1:
-                    ((EnemyPlaneModel) model).moveRightDown();
+                    setMoveBehavior(new MoveRightDownBehavior());
+                    moveBehavior.move(this.model);
                     break;
                 case 2:
-                    ((EnemyPlaneModel) model).moveLeftDown();
+                    setMoveBehavior(new MoveLeftDownBehavior());
+                    moveBehavior.move(this.model);
                     break;
                 case 3: {
-                    ((EnemyPlaneModel) model).moveDown();
+                    setMoveBehavior(new MoveDownBehavior());
+                    moveBehavior.move(this.model);
                     if (model.getY() >= 600) {
                         model.setY(0);
                         Random randomX = new Random();
@@ -147,10 +155,8 @@ public class EnemyPlaneController extends GameController {
                     break;
                 }
                 case 4:
-                    ((EnemyPlaneModel) model).moveToPlayer();
-                    break;
-                case 5:
-                    ((EnemyPlaneModel) model).moveAwayFromPlayer();
+                    setMoveBehavior(new MoveToPlayerBehavior());
+                    moveBehavior.move(this.model);
                     break;
             }
         }

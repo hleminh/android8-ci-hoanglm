@@ -4,39 +4,8 @@ import controllers.PlayerPlaneController;
 
 public class EnemyBulletModel extends GameModel {
 
-
     public EnemyBulletModel(int x, int y, int width, int height, int speed) {
         super(x, y, width, height, speed);
-    }
-
-    public void moveUp() {
-
-        y -= speed;
-    }
-
-    public void moveDown() {
-
-        y += speed;
-    }
-
-    public void moveRight() {
-
-        x += speed;
-    }
-
-    public void moveLeft() {
-
-        x -= speed;
-    }
-
-    public void moveRightDown() {
-        x += (speed - 3);
-        y += speed;
-    }
-
-    public void moveLeftDown() {
-        x -= (speed - 3);
-        y += speed;
     }
 
     public void moveToPlayer() {

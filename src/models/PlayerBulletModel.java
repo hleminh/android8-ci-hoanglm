@@ -32,15 +32,7 @@ public class PlayerBulletModel extends GameModel {
         x -= speed;
     }
 
-    public void moveRightUp() {
-        y -= speed;
-        x += speed - 3;
-    }
 
-    public void moveLeftUp() {
-        y -= speed;
-        x -= speed - 3;
-    }
 
     public void moveToEnemy(GameController enemy) {
         if (enemy != null) {
