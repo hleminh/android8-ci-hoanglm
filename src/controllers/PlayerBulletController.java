@@ -1,6 +1,7 @@
 package controllers;
 
 import models.PlayerBulletModel;
+import strategies.*;
 import utils.Utils;
 import views.GameView;
 
@@ -14,6 +15,7 @@ public class PlayerBulletController extends GameController {
     private boolean isRocket = false;
     private boolean triggered = false;
     private boolean isNuclear = false;
+    MoveBehavior moveBehavior;
 
     public PlayerBulletController(GameView view, PlayerBulletModel model) {
         super(view, model);
@@ -75,11 +77,15 @@ public class PlayerBulletController extends GameController {
         this.triggered = triggered;
     }
 
+    public void setMoveBehavior(MoveBehavior moveBehavior) {
+        this.moveBehavior = moveBehavior;
+    }
+
     public void onContact(GameController other) {
         if (other instanceof EnemyPlaneController) {
             if (isNuclear() == false)
                 setActive(false);
-            if (((EnemyPlaneController) other).isBoss() == false) {
+            if (((EnemyPlaneController) other).isBoss() == false && ((EnemyPlaneController) other).isDank() == false) {
                 ((EnemyPlaneController) other).setLife(0);
                 other.setActive(false);
                 ControllerManager.setScore(ControllerManager.getScore() + 1);
@@ -201,13 +207,16 @@ public class PlayerBulletController extends GameController {
             if (getModel().getY() < 0) setActive(false);
             switch (moveType) {
                 case 0:
-                    ((PlayerBulletModel) model).moveUp();
+                    setMoveBehavior(new MoveUpBehavior());
+                    moveBehavior.move(this.model);
                     break;
                 case 1:
-                    ((PlayerBulletModel) model).moveRightUp();
+                    setMoveBehavior(new MoveRightUpBehavior());
+                    moveBehavior.move(this.model);
                     break;
                 case 2:
-                    ((PlayerBulletModel) model).moveLeftUp();
+                    setMoveBehavior(new MoveLeftUpBehavior());
+                    moveBehavior.move(this.model);
                     break;
                 case 3:
                     ((PlayerBulletModel) model).moveToEnemy(enemy);

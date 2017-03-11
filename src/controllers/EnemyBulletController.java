@@ -2,6 +2,7 @@ package controllers;
 
 import game.GameWindow;
 import models.EnemyBulletModel;
+import strategies.*;
 import utils.Utils;
 import views.GameView;
 
@@ -11,6 +12,8 @@ public class EnemyBulletController extends GameController {
     private int moveType;
 
     private int kill = 3;
+
+    private MoveBehavior moveBehavior;
 
     public EnemyBulletController(GameView view, EnemyBulletModel model) {
         super(view, model);
@@ -40,6 +43,10 @@ public class EnemyBulletController extends GameController {
         this.moveType = moveType;
     }
 
+    public void setMoveBehavior(MoveBehavior moveBehavior) {
+        this.moveBehavior = moveBehavior;
+    }
+
     public synchronized void run() {
         if (model instanceof EnemyBulletModel) {
             if (getModel().getY() > GameWindow.windowY + 10 || getModel().getX() > GameWindow.windowX + 10 || getModel().getX() < -10)
@@ -62,22 +69,26 @@ public class EnemyBulletController extends GameController {
             }
             switch (moveType) {
                 case 0:
-                    ((EnemyBulletModel) model).moveDown();
+                    setMoveBehavior(new MoveDownBehavior());
+                    moveBehavior.move(this.model);
                     break;
                 case 1:
                     view.setImage(Utils.loadImageFromRes("bullet-right.png"));
                     model.setWidth(13);
                     model.setHeight(13);
-                    ((EnemyBulletModel) model).moveRightDown();
+                    setMoveBehavior(new MoveRightDownBehavior());
+                    moveBehavior.move(this.model);
                     break;
                 case 2:
                     view.setImage(Utils.loadImageFromRes("bullet-left.png"));
                     model.setWidth(13);
                     model.setHeight(13);
-                    ((EnemyBulletModel) model).moveLeftDown();
+                    setMoveBehavior(new MoveLeftDownBehavior());
+                    moveBehavior.move(this.model);
                     break;
                 case 3:
-                    ((EnemyBulletModel) model).moveToPlayer();
+                    setMoveBehavior(new MoveToPlayerBehavior());
+                    moveBehavior.move(this.model);
                     break;
             }
         }

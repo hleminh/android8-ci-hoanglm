@@ -7,7 +7,6 @@ import utils.Utils;
 import views.GameView;
 
 import java.awt.*;
-import java.util.Random;
 
 public class EnemyPlaneController extends GameController {
     private int kill = 6;
@@ -113,16 +112,29 @@ public class EnemyPlaneController extends GameController {
                     bulletDelay = 30;
                 }
                 if (isBoss() == true) {
-                    EnemyBulletController enemyBullet1 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 0, Utils.loadImageFromRes("bullet-round.png"));
-                    EnemyBulletController enemyBullet2 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 1, Utils.loadImageFromRes("bullet-left.png"));
-                    EnemyBulletController enemyBullet3 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 2, Utils.loadImageFromRes("bullet-right.png"));
-                    bulletList.getEnemyBulletControllers().add(enemyBullet1);
-                    bulletList.getCollidables().add(enemyBullet1);
-                    bulletList.getEnemyBulletControllers().add(enemyBullet2);
-                    bulletList.getCollidables().add(enemyBullet2);
-                    bulletList.getEnemyBulletControllers().add(enemyBullet3);
-                    bulletList.getCollidables().add(enemyBullet3);
-                    bulletDelay = 30;
+                    if (getLife()==2) {
+                        EnemyBulletController enemyBullet1 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 0, Utils.loadImageFromRes("bullet-round.png"));
+                        EnemyBulletController enemyBullet2 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 1, Utils.loadImageFromRes("bullet-left.png"));
+                        EnemyBulletController enemyBullet3 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 2, Utils.loadImageFromRes("bullet-right.png"));
+                        bulletList.getEnemyBulletControllers().add(enemyBullet1);
+                        bulletList.getCollidables().add(enemyBullet1);
+                        bulletList.getEnemyBulletControllers().add(enemyBullet2);
+                        bulletList.getCollidables().add(enemyBullet2);
+                        bulletList.getEnemyBulletControllers().add(enemyBullet3);
+                        bulletList.getCollidables().add(enemyBullet3);
+                        bulletDelay = 30;
+                    }
+                    if (getLife()==1){
+                        EnemyBulletController enemyBullet1 = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 9, 9, GameWindow.ENEMY_BULLET_SPEED, 3, Utils.loadImageFromRes("bullet-round.png"));
+                        enemyBullet1.getModel().setWidth(14);
+                        enemyBullet1.getModel().setHeight(61);
+                        enemyBullet1.getView().setImage(Utils.loadImageFromRes("rocket-enemy.png"));
+                        bulletList.getEnemyBulletControllers().add(enemyBullet1);
+                        bulletList.getCollidables().add(enemyBullet1);
+                        setMoveType(4);
+                        bulletDelay = 20;
+                    }
+
                 }
                 if (isDank() == true) {
                     EnemyBulletController enemyBullet = new EnemyBulletController((getModel().getX() + (getModel().getWidth() - 10) / 2), getModel().getY() + 10, 32, 31, GameWindow.ENEMY_BULLET_SPEED, 3, Utils.loadImageFromRes("dank.png"));
@@ -145,13 +157,8 @@ public class EnemyPlaneController extends GameController {
                     moveBehavior.move(this.model);
                     break;
                 case 3: {
-                    setMoveBehavior(new MoveDownBehavior());
+                    setMoveBehavior(new MoveDownRandomBehavior());
                     moveBehavior.move(this.model);
-                    if (model.getY() >= 600) {
-                        model.setY(0);
-                        Random randomX = new Random();
-                        model.setX(randomX.nextInt(400 - 42));
-                    }
                     break;
                 }
                 case 4:
@@ -197,6 +204,9 @@ public class EnemyPlaneController extends GameController {
         }
         if (isBoss() == true && getLife() == 1) {
             getView().setImage(Utils.loadImageFromRes("plane1-2.png"));
+        }
+        if (isDank() == true && getLife() == 1) {
+            getView().setImage(Utils.loadImageFromRes("unnamed-2.png"));
         }
         if (isActive() == false && isBoss() == true && getLife() == 0) {
             switch (getKill()) {

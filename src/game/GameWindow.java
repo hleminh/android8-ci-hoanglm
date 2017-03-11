@@ -50,8 +50,6 @@ public class GameWindow extends Frame {
 
     private int clockDank = 0;
 
-    private boolean bossActive = false;
-
     private boolean active = true;
 
     private BackgroundController background;
@@ -220,12 +218,11 @@ public class GameWindow extends Frame {
                         clockDank = clockDank + 1;
 
 
-                        if (clockBoss == 900 && bossActive == false) {
+                        if (clockBoss == 300) {
                             Random randomX = new Random();
                             EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42), 0, 60, 41, ENEMY_SPEED, Utils.loadImageFromRes("plane1.png"), gameControllers);
                             enemyPlaneController.setBoss(true);
-                            enemyPlaneController.setMoveType(0);
-                            bossActive = true;
+                            enemyPlaneController.setMoveType(3);
                             enemyPlaneController.setLife(2);
                             gameControllers.getGameControllers().add(enemyPlaneController);
                             gameControllers.getCollidables().add(enemyPlaneController);
@@ -233,12 +230,12 @@ public class GameWindow extends Frame {
                             clockEnemy = 0;
                         }
 
-                        if (clockDank == 500) {
+                        if (clockDank == 200) {
                             Random randomX = new Random();
                             EnemyPlaneController enemyPlaneController = new EnemyPlaneController(randomX.nextInt(background.getModel().getWidth() - 42), 0, 40, 40, ENEMY_SPEED, Utils.loadImageFromRes("unnamed.png"), gameControllers);
                             enemyPlaneController.setDank(true);
                             enemyPlaneController.setMoveType(4);
-                            enemyPlaneController.setLife(1);
+                            enemyPlaneController.setLife(2);
                             gameControllers.getGameControllers().add(enemyPlaneController);
                             gameControllers.getCollidables().add(enemyPlaneController);
                             clockDank = 0;

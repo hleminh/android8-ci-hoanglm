@@ -133,7 +133,7 @@ public class ControllerManager {
         }
     }
 
-    public void draw(Graphics graphic) {
+    public synchronized void draw(Graphics graphic) {
         Iterator<GameController> iterator1 = backgroundControllers.iterator();
         while (iterator1.hasNext()) {
             GameController el = iterator1.next();
